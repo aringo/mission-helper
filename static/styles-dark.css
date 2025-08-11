@@ -1,0 +1,66 @@
+body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: Arial, sans-serif;
+}
+
+h1, h2 {
+    color: #eeeeee;
+}
+
+.task-section {
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: var(--bg-element);
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+}
+
+.task-section h3 {
+    margin-top: 0;
+}
+
+ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+li {
+    margin: 5px 0;
+}
+
+a {
+    text-decoration: none;
+    color: #bb86fc;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Header container for better alignment */
+.header-container {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+#refresh-button {
+    margin-right: 20px;
+    padding: 8px 16px;
+    border: none;
+    background-color: #007bff;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+#refresh-button:hover {
+    background-color: #0056b3;
+}
+
+/* These styles are now handled by the unified theme system in base.css */
+/* This file is deprecated and should not be used */

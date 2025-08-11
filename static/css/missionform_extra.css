@@ -1,0 +1,999 @@
+/* Inline AI controls alignment and spacing */
+.section-header-with-controls .ai-inline-controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    vertical-align: middle;
+}
+
+.section-header-with-controls .tool-button i.fa-magic {
+    margin-right: 6px;
+}
+
+/* Ensure buttons in headers align consistently */
+.section-header-with-controls .tool-button,
+.section-header-with-controls .preview-button,
+.section-header-with-controls .edit-button {
+    height: 32px;
+    line-height: 30px;
+    margin: 0; /* normalize spacing */
+}
+
+/* Make entire header a flex row: Title on left, controls on the right with uniform gaps */
+.section-header-with-controls {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start !important; /* avoid space-between that spreads controls */
+    gap: 8px;
+}
+.section-header-with-controls > h2 {
+    margin: 0;
+    margin-right: auto; /* push controls group to the right */
+}
+
+/* Controls groups that wrap their own items */
+.testing-controls,
+.conclusion-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Match select height with buttons within headers */
+.section-header-with-controls select.form-select,
+.conclusion-controls select.form-select {
+    height: 32px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+/* Prevent title from stretching across header rows */
+.task-section h2 {
+    flex: 0 0 auto !important;
+}
+
+/* Slight spacing for inline loading spinners next to buttons */
+.section-header-with-controls .loading {
+    margin-left: 4px;
+}
+
+/* AI Rewrite modal spacing refinements */
+#aiRewriteModal .modal-body {
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+#aiRewriteModal .task-section {
+    margin: 6px 0 !important;
+}
+#aiRewriteModal .section-header {
+    margin: 4px 0 !important;
+}
+#aiRewriteModal .section-header h3 {
+    margin: 0 !important;
+    font-size: 16px;
+}
+#aiRewriteModal .form-actions {
+    margin-top: 8px;
+}
+/* Inline critical CSS styles */
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f5f5;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Form Styles */
+.form-container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.mission-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.mission-details {
+    flex: 1;
+}
+
+.mission-title {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 5px;
+    font-size: 1.8rem;
+}
+
+.description-button {
+    background: none;
+    border: none;
+    color: var(--accent-color);
+    cursor: pointer;
+    padding: 0;
+    font-size: 1.2rem;
+    display: inline-flex;
+    align-items: center;
+    margin-left: 8px;
+}
+
+.mission-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.mission-timer {
+    text-align: right;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    min-width: 180px;
+}
+
+.task-section {
+    margin-bottom: 30px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 15px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    font-family: inherit;
+    resize: vertical;
+}
+
+.markdown-preview {
+    padding: 15px;
+    background-color: #f8f9fa;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    display: none;
+}
+
+/* Action Buttons */
+.action-button {
+    padding: 8px 15px;
+    background-color: var(--accent-color);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 10px;
+    transition: background-color 0.2s;
+    font-size: 14px;
+}
+
+.action-button:hover {
+    background-color: var(--accent-hover);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.left-buttons, .right-buttons {
+    display: flex;
+    gap: 10px; /* Add space between buttons */
+}
+
+.form-actions .action-button {
+    white-space: nowrap; /* Prevent buttons from wrapping text */
+}
+
+/* Supporting Content */
+.supporting-content-container {
+    background-color: var(--bg-element);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.supporting-content-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    height: auto;
+}
+
+.supporting-content-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    line-height: normal;
+    color: var(--text-primary);
+}
+
+.supporting-content-body {
+    padding: 20px;
+    display: none;
+    max-height: none; /* Remove max height to avoid scrolling */
+    overflow-y: visible; /* No scrolling */
+    background-color: var(--bg-element);
+}
+
+/* Upload and Refresh buttons styling */
+.button-group .btn {
+    margin-left: 5px;
+    font-weight: 500;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.button-group .btn i {
+    margin-right: 5px;
+}
+
+.btn-outline-primary {
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.btn-outline-primary:hover {
+    color: #fff;
+    background-color: var(--accent-hover);
+}
+
+.btn-outline-secondary {
+    color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-outline-secondary:hover {
+    color: #fff;
+    background-color: #6c757d;
+}
+
+/* Upload Modal Styling */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1050;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    outline: 0;
+    background-color: var(--modal-backdrop);
+    display: none;
+}
+
+.modal-content {
+    position: relative;
+    background-color: var(--bg-surface);
+    margin: 10% auto;
+    padding: 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    width: 80%;
+    max-width: 700px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    animation: modalFadeIn 0.3s;
+}
+
+.modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    border-top-left-radius: calc(0.3rem - 1px);
+    border-top-right-radius: calc(0.3rem - 1px);
+    background-color: var(--bg-element);
+}
+
+.modal-title {
+    margin-bottom: 0;
+    line-height: 1.5;
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.btn-close {
+    box-sizing: content-box;
+    width: 1em;
+    height: 1em;
+    padding: 0.25em;
+    color: var(--text-secondary);
+    background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") center/1em auto no-repeat;
+    border: 0;
+    border-radius: 0.25rem;
+    opacity: 0.5;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btn-close:hover {
+    opacity: 0.75;
+    color: var(--text-primary);
+}
+
+.modal-body {
+    position: relative;
+    flex: 1 1 auto;
+    padding: 1rem;
+    color: var(--text-primary);
+}
+
+.modal-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0.75rem;
+    border-top: 1px solid var(--border-color);
+    border-bottom-right-radius: calc(0.3rem - 1px);
+    border-bottom-left-radius: calc(0.3rem - 1px);
+}
+
+.modal-footer .btn {
+    margin: 0.25rem;
+}
+
+.form-label {
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.form-control {
+    display: block;
+    width: 100%;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--text-primary);
+    background-color: var(--bg-input);
+    background-clip: padding-box;
+    border: 1px solid var(--border-color);
+    border-radius: 0.25rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus {
+    color: var(--text-primary);
+    background-color: var(--bg-input);
+    border-color: var(--accent-color);
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(52, 144, 220, 0.25);
+}
+
+/* Ensure upload modal form controls are properly contained */
+#uploadModal .form-control {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+}
+
+#uploadModal .mb-3 {
+    margin-bottom: 1rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+#uploadModal .modal-body form {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.btn-secondary {
+    color: #fff;
+    background-color: var(--text-secondary);
+    border-color: var(--text-secondary);
+}
+
+.btn-secondary:hover {
+    color: #fff;
+    background-color: var(--bg-button-hover);
+    border-color: var(--bg-button-hover);
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.btn-primary:hover {
+    color: #fff;
+    background-color: var(--accent-hover);
+    border-color: var(--accent-hover);
+}
+
+.btn {
+    display: inline-block;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--text-primary);
+    text-align: center;
+    text-decoration: none;
+    vertical-align: middle;
+    cursor: pointer;
+    user-select: none;
+    background-color: transparent;
+    border: 1px solid transparent;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    border-radius: 0.25rem;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, 
+                border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+/* Attachments */
+.mission-attachments-container {
+    margin-bottom: 30px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: var(--bg-element);
+}
+
+.mission-attachments-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.mission-attachments-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: var(--text-primary);
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+}
+
+.attachments-list {
+    padding: 15px;
+    background-color: var(--bg-element);
+}
+
+.attachment-item {
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    overflow: hidden;
+    background-color: var(--bg-primary);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    position: relative;
+    transition: transform 0.2s;
+}
+
+.attachment-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.attachment-preview {
+    height: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--bg-accent);
+    overflow: hidden;
+    position: relative;
+}
+
+.attachment-thumbnail {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
+    cursor: pointer;
+}
+
+.attachment-info {
+    padding: 10px;
+}
+
+.attachment-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 5px;
+    margin-bottom: 5px;
+}
+
+.attachment-title {
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    word-break: break-word;
+}
+
+.attachment-description {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.attachment-actions {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    display: none;
+    gap: 5px;
+}
+
+.attachment-item:hover .attachment-actions {
+    display: flex;
+}
+
+.download-btn, .delete-btn {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+    color: #fff;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.download-btn:hover {
+    background-color: var(--accent-color);
+    color: #fff;
+}
+
+.delete-btn:hover {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.api-badge {
+    display: inline-block;
+    background-color: #28a745;
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 5px;
+    border-radius: 3px;
+    margin-left: 5px;
+    vertical-align: middle;
+}
+
+/* Flash messages */
+.flash-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1050;
+    max-width: 350px;
+}
+
+.flash-message {
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    animation: fadeIn 0.3s ease-out;
+    position: relative;
+}
+
+.flash-message.info {
+    background-color: var(--info-color);
+    color: #fff;
+}
+
+.flash-message.success {
+    background-color: var(--success-color);
+    color: #fff;
+}
+
+.flash-message.error {
+    background-color: var(--error-color);
+    color: #fff;
+}
+
+.close-flash {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    color: inherit;
+    opacity: 0.7;
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(-10px); }
+}
+
+/* File upload styling */
+.file-upload-container {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+}
+
+/* Ensure file upload container is properly contained within modal */
+#uploadModal .file-upload-container {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+}
+
+.file-drop-area {
+    position: relative;
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-height: 100px;
+    padding: 15px;
+    background-color: var(--bg-element);
+    border: 2px dashed var(--border-color);
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    text-align: center;
+    cursor: pointer;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+}
+
+/* Ensure file drop area is properly contained within modal */
+#uploadModal .file-drop-area {
+    position: relative;
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-height: 100px;
+    padding: 15px;
+    background-color: var(--bg-element);
+    border: 2px dashed var(--border-color);
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    text-align: center;
+    cursor: pointer;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+}
+
+.file-drop-area:hover, .file-drop-area.dragover {
+    background-color: var(--bg-hover);
+    border-color: var(--accent-color);
+}
+
+.file-drop-area .drop-message {
+    font-size: 16px;
+    color: var(--text-secondary);
+    position: relative;
+    z-index: 1;
+}
+
+.file-input {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.selected-file {
+    padding: 10px;
+    margin-top: 10px;
+    background-color: var(--bg-accent);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap; /* keep long filenames within modal */
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.selected-file i {
+    margin-right: 8px;
+    color: var(--text-secondary);
+}
+
+.selected-file button {
+    margin-left: auto;
+    color: var(--error-color);
+    text-decoration: none;
+}
+
+/* Ensure file names wrap inside the modal */
+#selectedFileName {
+    overflow-wrap: anywhere;
+    flex-basis: 100%;
+}
+
+/* Ensure form styles are consistent */
+.upload-form-group {
+    margin-bottom: 1rem;
+}
+
+.upload-form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.upload-form-control {
+    display: block;
+    width: 100%;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--text-primary);
+    background-color: var(--bg-input);
+    background-clip: padding-box;
+    border: 1px solid var(--border-color);
+    border-radius: 0.25rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+/* Modal styling improvements */
+.modal-dialog {
+    max-width: 900px; /* slightly wider upload form */
+    margin: 1.75rem auto;
+    width: 90%; /* ensure it doesn't exceed viewport width */
+    box-sizing: border-box;
+}
+
+/* Specific styling for upload modal */
+#uploadModal .modal-dialog {
+    max-width: 700px;
+    width: 95%;
+    margin: 1.75rem auto;
+    box-sizing: border-box;
+}
+
+#uploadModal .modal-content {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.modal-content {
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border: none;
+}
+
+.modal-header {
+    background-color: var(--bg-element);
+    border-bottom: 1px solid var(--border-color);
+    padding: 15px 20px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.modal-body {
+    padding: 20px;
+    box-sizing: border-box;
+    max-width: 100%;
+    overflow-x: hidden;
+    width: 100%;
+}
+
+.modal-footer {
+    border-top: 1px solid var(--border-color);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.form-label {
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.form-control {
+    border-radius: 4px;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 0.2rem rgba(52, 144, 220, 0.25);
+}
+
+/* Fix the status updates display */
+.status-updates {
+    max-height: 100px;
+    overflow-y: auto;
+    width: 100%;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    border: 1px solid #e9ecef;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.status-updates div {
+    margin-bottom: 5px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.status-updates div:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.progress {
+    height: 20px;
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
+
+/* Template Selection Modal Styles */
+.template-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.template-card {
+    flex: 0 0 calc(33.333% - 15px);
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    min-height: 160px;
+}
+
+.template-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border-color: var(--accent-color);
+}
+
+.template-card-content {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.template-card h3 {
+    margin: 0 0 15px 0;
+    font-size: 1.2rem;
+    color: #333;
+}
+
+.template-card button {
+    margin-top: auto;
+    width: 100%;
+}
+
+.loading {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+
+.error {
+    text-align: center;
+    padding: 20px;
+    color: #dc3545;
+}
+
+/* Attachment groups */
+.attachment-group {
+    margin-bottom: 30px;
+}
+
+.attachment-group-title {
+    font-size: 1rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.attachment-group-description {
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.attachment-group-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+/* Tool selection styles */
+.tool-list {
+    margin-top: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+}
+
+.tool-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.tool-item:hover {
+    background-color: var(--bg-element);
+}
+
+/* Responsive adjustments for upload modal */
+@media (max-width: 768px) {
+    .modal-dialog {
+        width: 95%;
+        margin: 1rem auto;
+    }
+    
+    .modal-body {
+        padding: 15px;
+    }
+    
+    .file-drop-area {
+        padding: 10px;
+        min-height: 80px;
+    }
+    
+    .file-drop-area .drop-message {
+        font-size: 14px;
+    }
+}

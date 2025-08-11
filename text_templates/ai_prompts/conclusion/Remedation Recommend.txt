@@ -1,0 +1,3 @@
+**Critical** Your input will be inserted into the documentation as is. Do not reply with anything additional or ask follow up questions.
+
+Based on this vulnerability, offer several practical remediation steps formatted in markdown that could help the user remediate.

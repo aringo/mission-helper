@@ -1,0 +1,7 @@
+{
+    "platform": "https://platform.synack.com",
+    "working_folder": "data",
+    "token_file": "/tmp/synacktoken",
+    "ai_key":"",
+    "ai_model":""
+}

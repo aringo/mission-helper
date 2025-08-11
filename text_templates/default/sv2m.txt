@@ -1,0 +1,40 @@
+[Introduction]
+The only thing provided to the tester concerning the vulnerability is the endpoint and this testing will attempt to confirm if the alerted issue is reportable under Synack Vulnerability standards.
+
+<replace this with vulnerabilities type and research>
+
+[Testing]
+
+### Assets Tested:
+
+1. <url>
+
+
+##### Tools
+
+1. **[Burp Professional](https://portswigger.net/burp/pro)**
+
+* Function: A comprehensive web security testing toolkit featuring a proxy for viewing, manipulating, and performing automated tests on traffic to and from the web application.
+* Reason: Provides robust automated testing capabilities and the ability to inspect all traffic. The scan that created the alert came from Burp so true positives will cause another alert if the correct request is scanned.
+
+
+### Steps:
+
+1. Open the application endpoint in Burp as seen in the `application` attachment.
+2. Scan using a `custom configuration` in an attempt to replicate the vulnerability alert
+3. Review the `scan results`
+
+
+[conclusion-pass]
+This endpoint is currently not reported as seen in the attached `analytics` image.
+
+##### Testing conducted:
+Based on the testing conducted the attempts at replicating the vulnerability provided in the alert failed. <Please expand>
+
+[conclusion-fail]
+
+
+##### Testing conducted:
+
+
+

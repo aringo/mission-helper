@@ -1,0 +1,32 @@
+[Introduction]  
+This test is designed to assess the security of exposed host services, particularly focusing on port-based vulnerabilities and misconfigurations. The objective is to identify open ports, associated services, and any weaknesses or unnecessary exposures that could be leveraged in a broader attack.
+
+Unauthorized services or improperly configured hosts can expose the application to network-level attacks, service exploitation, or information leakage. This test ensures that only essential services are exposed and properly secured. This aligns with general best practices for network service enumeration and hardening, such as those defined by OWASP and industry standards.
+
+Unauthenticated Test
+
+[Testing]  
+##### Assets Tested  
+1.  
+
+##### Tools
+
+
+##### Steps  
+
+
+[Documentation]  
+- Screenshot: Naabu output showing open ports.  
+
+
+[Scripts]  
+
+
+[conclusion-pass]  
+Only expected ports/services were found, and no unnecessary or vulnerable services are exposed.  
+No vulnerability was identified in the analytics for this project.
+
+[conclusion-fail]  
+Unexpected or vulnerable services were discovered. The host should be hardened by closing unnecessary ports and updating/patching exposed services.  
+No vulnerability was identified in the analytics for this project.
+

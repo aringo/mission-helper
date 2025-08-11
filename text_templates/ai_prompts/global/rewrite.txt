@@ -1,0 +1,3 @@
+**Critical** Your input will be inserted into the documentation as is. Do not reply with anything additional or ask follow up questions.
+
+Help rewrite this so it flows better making sure there are no errors in grammar and spelling. This is for a technical report so while it's alright to make it read better it's not alright to modify the technical truth.

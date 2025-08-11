@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index_extra.css') }}">
+{% endblock %}
+
+{% block header_actions %}
+<button id="refreshButton" class="header-button">
+    Refresh Missions
+</button>
+<select id="themeSelect" class="header-button" onchange="setTheme(this.value)">
+    <option value="light">Light Theme</option>
+    <option value="blue">Relaxing Blue</option>
+    <option value="green">Forest</option>
+    <option value="dark">Dark Theme</option>
+</select>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="missions-container">
+        {% if missions %}
+            {% set grouped_missions = {} %}
+            {% for mission in missions %}
+                {% if mission.listingCodename not in grouped_missions %}
+                    {% set _ = grouped_missions.update({mission.listingCodename: []}) %}
+                {% endif %}
+                {% set _ = grouped_missions[mission.listingCodename].append(mission) %}
+            {% endfor %}
+            
+            {% for codename, codename_missions in grouped_missions.items() %}
+            <div class="mission-group">
+                <div class="mission-group-header">{{ codename }}</div>
+                <div class="missions-list">
+                    {% for mission in codename_missions %}
+                    <div class="mission-row">
+                        <div class="mission-title">{{ mission.title }}</div>
+                        <div class="mission-payout">${{ mission.payout.amount }}</div>
+                        <div class="countdown" id="countdown-{{ mission.id }}" 
+                             data-claimed-on="{{ mission.claimedOn or '' }}"
+                             data-returned-on="{{ mission.returnedForEditOn or '' }}"
+                             data-max-secs="{{ mission.maxCompletionTimeInSecs }}">
+                            Loading...
+                        </div>
+                        <a href="{{ url_for('mission.mission_form', mission_id=mission.id) }}" class="start-button">
+                            Start Mission
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>No missions available.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/countdown.js') }}"></script>
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,306 @@
+        /* Theme variables are now defined in base.css */
+        /* This file uses the standardized CSS variables */
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        header {
+            background-color: var(--bg-secondary);
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 150px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .theme-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .theme-select {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .theme-select:hover {
+            border-color: var(--accent-color);
+        }
+
+        .theme-select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px var(--accent-color-light);
+        }
+
+        main {
+            max-width: 1700px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .mission-card {
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .mission-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .mission-title {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .mission-title:hover {
+            color: var(--accent-color);
+        }
+
+        .mission-meta {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .mission-description {
+            color: var(--text-primary);
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+
+        .mission-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .action-button {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            border: none;
+            background-color: var(--accent-color);
+            color: white;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+        }
+
+        .action-button:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .refresh-button {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 5px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .refresh-button:hover {
+            background-color: var(--bg-hover);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--modal-backdrop);
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background-color: var(--bg-surface);
+            margin: 5% auto;
+            padding: 2rem;
+            border: 1px solid var(--border-color);
+            width: 80%;
+            max-width: 800px;
+            border-radius: 8px;
+            position: relative;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-title {
+            margin: 0;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .close-button:hover {
+            color: var(--text-primary);
+            background-color: var(--bg-hover);
+        }
+
+        .modal-body {
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .modal-body pre {
+            background-color: var(--bg-code);
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            white-space: pre-wrap;
+        }
+
+        .modal-body code {
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+            font-size: 0.9em;
+            padding: 0.2em 0.4em;
+            background-color: var(--bg-code);
+            border-radius: 3px;
+        }
+
+        .modal-body a {
+            color: var(--accent-color);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .modal-body a:hover {
+            color: var(--accent-hover);
+            text-decoration: underline;
+        }
+
+        .description-button {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 5px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .description-button:hover {
+            background-color: var(--bg-hover);
+        }
+
+        .description-button span {
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+            }
+        }
+        
+        /* Flash message styles */
+        .flash-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 4px;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            z-index: 9999;
+            transition: opacity 0.3s ease;
+            max-width: 350px;
+        }
+        
+        .flash-success {
+            background-color: #28a745;
+        }
+        
+        .flash-error {
+            background-color: #dc3545;
+        }
+        
+        .flash-info {
+            background-color: #17a2b8;
+        }
+        
+        /* Spinning animation for refresh button */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .spinning {
+            position: relative;
+            pointer-events: none;
+        }
+        
+        .spinning::after {
+            content: "";
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+            border: 3px solid transparent;
+            border-top-color: currentColor;
+            border-radius: 50%;
+            animation: spin 1s ease infinite;
+        }

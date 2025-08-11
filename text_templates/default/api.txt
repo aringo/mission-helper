@@ -1,0 +1,65 @@
+[Introduction]
+
+API Security focuses on strategies and solutions to understand and mitigate the unique vulnerabilities and security risks of Application Programming Interfaces (APIs). Using the OWASP API Top 10 as a guide, the {{collection_name}} API was tested for the following vulnerabilities: Broken Object Level Authorization, Excessive Data Exposure, Broken Functional Authorization, Security Misconfigurations, and Injection vulnerabilities. In addition, specific testing techniques and methods for each method and endpoint with outlined in the assessment results section of this mission report. 
+
+Each API comes with a specific Postman Environment file. The postman collection and the postman environment files are loaded into Postman to ensure all variables are set appropriately. <<In addition, the client has provided credentials for both the services. (if applicable)>>
+
+According to the documentation at {{documentation here}}, this endpoint supports 2 GET operations:
+<<* GET https://url/endpoint>>
+<<* GET https://url/endpoint-2>>
+
+
+
+[Testing]
+
+##### Tools
+
+This section lists tools inserted via the tool picker.
+
+This researcher first configured Postman to send all traffic through Burp Suite so that the raw requests can be examined for structure and to help identify potential attack vectors. Testing of this endpoint includes testing of the following potential issues:
+<<* Authorization issues such as IDOR>> (Two Minimum)
+<<* Potential Cross-Site Scripting>>
+<<* Potential SQL Injection>>
+<<* Header injection>>
+
+Testing for these issues is performed using automated and manual methods. For instance, this researcher will attempt to {{manually identify SQL Injection while also utilizing SQLmap for automated testing.}}
+
+{{
+Add any additional details here
+}}
+
+<<### SQL Injection ###>>
+{{
+Add testing details here and detailed observations
+}}
+
+<<### Cross-Site Scripting ###
+Cross-Site Scripting (XSS) attacks are a type of injection, in which malicious scripts are injected into otherwise benign and trusted websites. XSS attacks occur when an attacker uses a web application to send malicious code, generally in the form of a browser side script, to a different end user. Flaws that allow these attacks to succeed are quite widespread and occur anywhere a web application uses input from a user within the output it generates without validating or encoding it.
+
+An attacker can use XSS to send a malicious script to an unsuspecting user. The end user's browser has no way to know that the script should not be trusted, and will execute the script. Because it thinks the script came from a trusted source, the malicious script can access any cookies, session tokens, or other sensitive information retained by the browser and used with that site. These scripts can even rewrite the content of the HTML page.>>
+
+{{
+Add testing details here and detailed observations
+}}
+
+<<### IDOR ###
+An Insecure Direct Object Reference (called IDOR from here) occurs when a application exposes a reference to an internal implementation object. Using this way, it reveals the real identifier and format/pattern used of the element in the storage backend side. The most common example of it (although is not limited to this one) is a record identifier in a storage system (database, filesystem and so on).>>
+
+{{
+Add testing details here and detailed observations
+}}
+
+<<### Header injection ###
+A web server commonly hosts several web applications on the same IP address, referring to each application via the virtual host. In an incoming HTTP request, web servers often dispatch the request to the target virtual host based on the value supplied in the Host header. Without proper validation of the header value, the attacker can supply invalid input to cause the web server to load resources that the user is not authorized to access.
+
+{{
+Add testing details here and detailed observations
+}}>>
+
+[conclusion-fail]
+After running several tests on the specific method and endpoint for this mission vulnerabilities were identified during the test. For this particular mission, I validated the functionality of the `{{api_method(s)}}` method of the endpoint `{{endpoint_path}}` by attempting {{Flaws you looked for}}. {{Small sentence to say that issues  found}} There were {{no}} vulnerabilities reported when attempting to make this API request. {{PLACE TO ADD ADDITIONAL INFO AS YOU SEE FIT - The `401` error was generic and did not provide any information that could be used to enumerate the API's architecture further.}}
+
+[conclusion-pass]
+After running several tests on the specific method and endpoint for this mission, no vulnerabilities were found during the test. For this particular mission, I validated the functionality of the `{{api_method(s)}}` method of the endpoint `{{endpoint_path}}` by attempting {{Flaws you looked for}}. {{Small sentence to say that no issues were found}} There were no vulnerabilities reported when attempting to make this API request. {{PLACE TO ADD ADDITIONAL INFO AS YOU SEE FIT - The `401` error was generic and did not provide any information that could be used to enumerate the API's architecture further.}}
+
+[Scripts]

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Missions Helper{% endblock %}</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}?v={{ now().timestamp() }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}?v={{ now().timestamp() }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base_inline.css') }}?v={{ now().timestamp() }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mission_attachments.css') }}?v={{ now().timestamp() }}">
+    {% block styles %}{% endblock %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script>window.refreshTasksUrl = "{{ url_for('mission.refresh_tasks') }}";</script>
+    <script src="{{ url_for('static', filename='js/base.js') }}"></script>
+</head>
+<body>
+    <header class="main-header">
+        <div class="header-content">
+            <h1 style="display:flex; align-items:center; gap:8px; margin:0;">
+                <a href="{{ url_for('mission.render_config_page') }}" class="header-button" title="Settings" style="display:inline-flex; align-items:center; gap:6px; text-decoration:none;">
+                    <i class="fas fa-cog"></i>
+                </a>
+                {% block header %}Missions Helper{% endblock %}
+            </h1>
+            <div class="header-actions">
+                {% block header_actions %}
+                <select id="themeSelect" class="header-button" onchange="setTheme(this.value)">
+                    <option value="light">Light Theme</option>
+                    <option value="blue">Relaxing Blue</option>
+                    <option value="green">Forest</option>
+                    <option value="dark">Dark Theme</option>
+                </select>
+                {% endblock %}
+            </div>
+        </div>
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

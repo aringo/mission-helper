@@ -1,0 +1,35 @@
+[Introduction]
+<insert introduction here>
+
+
+
+[Testing]
+### Assets Tested:
+
+1. <url>
+
+
+##### Tools
+
+
+
+### Steps:
+1. <step taken> 
+2. <step taken> 
+3. <step taken>
+4. <step taken>
+
+[conclusion-fail]
+
+This testing identified the application is: vulnerable
+
+##### Testing conducted:
+
+
+[conclusion-pass]
+
+This testing identified the application is: not vulnerable
+
+##### Testing conducted:
+
+[Scripts]

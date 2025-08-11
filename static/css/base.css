@@ -1,0 +1,159 @@
+:root {
+    /* Light theme (default) */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8f9fa;
+    --bg-accent: #e9ecef;
+    --text-primary: #2c3e50;
+    --text-secondary: #6c757d;
+    --border-color: #dee2e6;
+    --accent-color: #3498db;
+    --accent-hover: #2980b9;
+    --error-color: #e74c3c;
+    --success-color: #2ecc71;
+    --bg-hover: #f0f0f0;
+    
+    /* Additional variables for modal and form elements */
+    --bg-surface: #ffffff;
+    --bg-element: #f8f9fa;
+    --bg-input: #ffffff;
+    --bg-button: #e9ecef;
+    --bg-button-hover: #dee2e6;
+    --bg-code: #f5f5f5;
+    --modal-backdrop: rgba(0, 0, 0, 0.5);
+    --info-color: #17a2b8;
+    /* Scope-specific color matches primary text to blend with section */
+    --scope-text-color: var(--text-primary);
+}
+
+/* Relaxing Blue theme */
+[data-theme="blue"] {
+    --bg-primary: #f0f8ff;
+    --bg-secondary: #e6f3ff;
+    --bg-accent: #cce4ff;
+    --text-primary: #2c5282;
+    --text-secondary: #4a5568;
+    --border-color: #bee3f8;
+    --accent-color: #4299e1;
+    --accent-hover: #3182ce;
+    --error-color: #e53e3e;
+    --success-color: #38a169;
+    --bg-hover: #d9e8ff;
+    
+    /* Additional variables for modal and form elements */
+    --bg-surface: #ffffff;
+    --bg-element: #e6f3ff;
+    --bg-input: #ffffff;
+    --bg-button: #cce4ff;
+    --bg-button-hover: #bee3f8;
+    --bg-code: #f5f5f5;
+    --modal-backdrop: rgba(0, 0, 0, 0.5);
+    --info-color: #4299e1;
+    --scope-text-color: var(--text-primary);
+}
+
+/* Forest theme */
+[data-theme="green"] {
+    --bg-primary: #f0fff4;
+    --bg-secondary: #e6ffee;
+    --bg-accent: #c6f6d5;
+    --text-primary: #276749;
+    --text-secondary: #4a5568;
+    --border-color: #9ae6b4;
+    --accent-color: #48bb78;
+    --accent-hover: #38a169;
+    --error-color: #e53e3e;
+    --success-color: #38a169;
+    --bg-hover: #d7f9e3;
+    
+    /* Additional variables for modal and form elements */
+    --bg-surface: #ffffff;
+    --bg-element: #e6ffee;
+    --bg-input: #ffffff;
+    --bg-button: #c6f6d5;
+    --bg-button-hover: #9ae6b4;
+    --bg-code: #f5f5f5;
+    --modal-backdrop: rgba(0, 0, 0, 0.5);
+    --info-color: #48bb78;
+    --scope-text-color: var(--text-primary);
+}
+
+/* Dark theme */
+[data-theme="dark"] {
+    --bg-primary: #1a202c;
+    --bg-secondary: #2d3748;
+    --bg-accent: #4a5568;
+    --text-primary: #f7fafc;
+    --text-secondary: #a0aec0;
+    --border-color: #4a5568;
+    --accent-color: #4299e1;
+    --accent-hover: #3182ce;
+    --error-color: #fc8181;
+    --success-color: #68d391;
+    --bg-hover: #364055;
+    
+    /* Additional variables for modal and form elements */
+    --bg-surface: #2d3748;
+    --bg-element: #4a5568;
+    --bg-input: #1a202c;
+    --bg-button: #4a5568;
+    --bg-button-hover: #718096;
+    --bg-code: #1a202c;
+    --modal-backdrop: rgba(0, 0, 0, 0.7);
+    --info-color: #4299e1;
+    --scope-text-color: var(--text-primary);
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.main-header {
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem;
+}
+
+.header-content {
+    max-width: none;
+    margin: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.header-button {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.2s;
+}
+
+.header-button:hover {
+    background-color: var(--bg-accent);
+}
+
+select.header-button {
+    padding-right: 2rem;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+    background-size: 1rem;
+} 

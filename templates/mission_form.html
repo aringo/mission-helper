@@ -1,0 +1,1716 @@
+{% extends "base.html" %}
+
+{% block header %}{{ mission.listingCodename }}{% endblock %}
+
+{% block title %}{{ mission.title }} - Mission Form{% endblock %}
+            <h2>Introduction</h2>
+{% block head %}{% endblock %}
+
+{% block styles %}
+<!-- Use the correct filename (missionform.css) -->
+<link rel="stylesheet" href="/static/css/missionform.css?v={{ range(1, 999999) | random }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/missionform_extra.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+        <script>
+        // Global variables available to all inline scripts
+        var missionId = "{{ mission_id }}";
+        var currentCategory = "{{ category }}";
+        // Prevent form resubmission on refresh by cleaning query params
+        (function(){
+            try {
+                var currentUrl = window.location.href.split('?')[0];
+                window.history.replaceState({}, document.title, currentUrl);
+            } catch (e) {}
+        })();
+        window.addEventListener('beforeunload', function(event) {
+            if (window.submittingForm) return;
+            event.preventDefault();
+            event.returnValue = '';
+        });
+        </script>
+    <div class="header-container">
+        <div class="header-left">
+            <a href="{{ url_for('mission.index') }}" class="back-button">
+                <i class="fas fa-arrow-left"></i>
+                Back to Missions
+            </a>
+            <div class="title-timer-container">
+                <h1 class="mission-title">
+                    {{ mission.title }}
+                    <button type="button" class="description-button" onclick="showDescription()" title="View Mission Description">
+                        <i class="fas fa-info-circle"></i>
+                    </button>
+                </h1>
+                <div class="countdown-container">
+                    <div class="countdown" id="mission-countdown" 
+                         data-claimed-on="{{ mission.claimedOn or '' }}"
+                         data-returned-on="{{ mission.returnedForEditOn or '' }}"
+                         data-max-secs="{{ mission.maxCompletionTimeInSecs }}">
+                        Loading...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form id="missionForm" class="mission-form">
+    <div id="template-selection-flags" style="display:none;" data-should-load-defaults="{% if needs_template_selection and show_default_templates %}true{% else %}false{% endif %}"></div>
+    <!-- Scope section -->
+    {% set scope_text = (mission_scope|default('') or mission.scope|default('')) %}
+        {% if scope_text|trim %}
+        <div class="task-section">
+            <div class="section-header">
+                <h2>Scope</h2>
+            </div>
+            <div id="scope-content" class="markdown-content">{{- scope_text|trim -}}</div>
+        </div>
+        {% endif %}
+        <!-- Core content sections -->
+        <div class="task-section">
+            <div class="section-header-with-controls">
+                <h2>Introduction</h2>
+                <button type="button" class="preview-button" onclick="togglePreview(this, 'introduction')">
+                    <i class="fas fa-eye"></i> Preview
+                </button>
+                <div class="ai-inline-controls" style="display:inline-flex; align-items:center; gap:8px;">
+                    <button type="button" class="tool-button" title="AI Rewrite" onclick="openAiRewriteModal('introduction')"><i class="fas fa-magic"></i> AI</button>
+                    <span id="ai-intro-spinner" class="loading" style="display:none;">Rewriting…</span>
+                </div>
+            </div>
+            <textarea name="introduction" id="introduction" class="form-input" rows="10">{{ sections.introduction }}</textarea>
+            <div id="introduction-preview" class="markdown-preview"></div>
+        </div>
+
+        <div class="task-section">
+            <div class="section-header-with-controls">
+                <h2>Testing Methodology</h2>
+                <div class="testing-controls">
+                    <button type="button" class="tool-button" onclick="openToolModal()">
+                        <i class="fas fa-hammer"></i> Tool
+                    </button>
+                    <button type="button" class="preview-button" onclick="togglePreview(this, 'testing_methodology')">
+                        <i class="fas fa-eye"></i> Preview
+                    </button>
+                    <div class="ai-inline-controls" style="display:inline-flex; align-items:center; gap:8px;">
+                        <button type="button" class="tool-button" title="AI Rewrite" onclick="openAiRewriteModal('testing_methodology')"><i class="fas fa-magic"></i> AI</button>
+                        <span id="ai-test-spinner" class="loading" style="display:none;">Rewriting…</span>
+                    </div>
+                </div>
+            </div>
+            <textarea name="testing_methodology" id="testing_methodology" class="form-input" rows="20">{{ sections.testing_methodology }}</textarea>
+            <div id="testing_methodology-preview" class="markdown-preview"></div>
+        </div>
+
+        <div class="task-section">
+            <div class="section-header-with-controls">
+                <h2>Conclusion</h2>
+                <div class="conclusion-controls">
+                    {% if category == 'sv2m' %}
+                    <select name="conclusion_type" id="conclusion_type" class="form-select">
+                        <option value="not_exploitable" {% if sections.conclusion_type not in ['fail','not_testable'] %}selected{% endif %}>Not Exploitable</option>
+                        <option value="vulnerable" {% if sections.conclusion_type == 'fail' %}selected{% endif %}>Vulnerable</option>
+                        <option value="out_of_threshold" {% if sections.conclusion_type == 'not_testable' %}selected{% endif %}>Out of Threshold</option>
+                    </select>
+                    {% else %}
+                    <select name="conclusion_type" id="conclusion_type" class="form-select">
+                        <option value="pass" {% if sections.conclusion_type == 'pass' %}selected{% endif %}>Pass</option>
+                        <option value="fail" {% if sections.conclusion_type == 'fail' %}selected{% endif %}>Fail</option>
+                        <option value="not_testable" {% if sections.conclusion_type == 'not_testable' %}selected{% endif %}>Not Testable</option>
+                    </select>
+                    {% endif %}
+                    <button type="button" class="preview-button" onclick="togglePreview(this, 'conclusion')">
+                        <i class="fas fa-eye"></i> Preview
+                    </button>
+                    <div class="ai-inline-controls" style="display:inline-flex; align-items:center; gap:8px;">
+                        <button type="button" class="tool-button" title="AI Rewrite" onclick="openAiRewriteModal('conclusion')"><i class="fas fa-magic"></i> AI</button>
+                        <span id="ai-conc-spinner" class="loading" style="display:none;">Rewriting…</span>
+                    </div>
+                </div>
+            </div>
+            <textarea name="conclusion" id="conclusion" class="form-input" rows="10">{{ sections.conclusion }}</textarea>
+            <div id="conclusion-preview" class="markdown-preview"></div>
+        </div>
+
+        <!-- Hidden conclusion containers for pass/fail (used when edit template is clicked) -->
+        <div id="dual-conclusion-container" style="display: none;">
+            <div class="task-section">
+                <div class="section-header">
+                    <h2>Success Conclusion</h2>
+                </div>
+                <textarea id="conclusion-pass" class="form-input" name="conclusion-pass" rows="10">{{ sections['conclusion-pass'] }}</textarea>
+                <div id="conclusion-pass-preview" class="markdown-preview"></div>
+            </div>
+            <div class="task-section">
+                <div class="section-header">
+                    <h2>Failure Conclusion</h2>
+                </div>
+                <textarea id="conclusion-fail" class="form-input" name="conclusion-fail" rows="10">{{ sections['conclusion-fail'] }}</textarea>
+                <div id="conclusion-fail-preview" class="markdown-preview"></div>
+            </div>
+        </div>
+
+        <!-- Supporting content (Documentation and Scripts) in a collapsible container -->
+        <div class="supporting-content-container">
+            <div class="supporting-content-header" onclick="toggleSupportingContent()">
+                <h2>Supporting Content</h2>
+                <span class="toggle-icon" id="supporting-content-toggle">▶</span>
+            </div>
+            <div class="supporting-content-body" id="supporting-content-body">
+                <!-- Documentation Section -->
+                <div class="task-section">
+                    <div class="section-header-with-controls">
+                        <h2>Documentation</h2>
+                        <button type="button" class="edit-button" onclick="toggleEditMode('documentation')">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <div class="ai-inline-controls" style="display:inline-flex; align-items:center; gap:8px;">
+                            <button type="button" class="tool-button" title="AI Rewrite" onclick="openAiRewriteModal('documentation')"><i class="fas fa-magic"></i> AI</button>
+                            <span id="ai-doc-spinner" class="loading" style="display:none;">Rewriting…</span>
+                        </div>
+                    </div>
+                    <textarea id="documentation" name="documentation" class="form-input" rows="10" style="display: none;">{{ sections.documentation }}</textarea>
+                    <div id="documentation-preview" class="markdown-preview" style="display: block;"></div>
+                </div>
+
+                <!-- Scripts Section -->
+                <div class="task-section">
+                    <div class="section-header-with-controls">
+                        <h2>Scripts</h2>
+                        <button type="button" class="edit-button" onclick="toggleEditMode('scripts')">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <div class="ai-inline-controls" style="display:inline-flex; align-items:center; gap:8px;">
+                            <button type="button" class="tool-button" title="AI Rewrite" onclick="openAiRewriteModal('scripts')"><i class="fas fa-magic"></i> AI</button>
+                            <span id="ai-scripts-spinner" class="loading" style="display:none;">Rewriting…</span>
+                        </div>
+                    </div>
+                    <textarea id="scripts" name="scripts" class="form-input" rows="10" style="display: none;">{% if sections.scripts is iterable and sections.scripts is not string %}{{ sections.scripts|join('\n') }}{% else %}{{ sections.scripts }}{% endif %}</textarea>
+                    <div id="scripts-preview" class="markdown-preview" style="display: block;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add this after the supporting content container -->
+        <div class="mission-attachments-container" data-mission-id="{{ mission_id }}">
+            <div class="mission-attachments-header">
+                <h3>Mission Attachments</h3>
+                <div class="button-group">
+                <button id="upload-attachment-btn" type="button" class="btn btn-outline-primary" onclick="return openUploadModal(event)">
+                        <i class="fas fa-upload"></i> Upload
+                    </button>
+                    <button id="refresh-attachments-btn" type="button" class="btn btn-outline-secondary" onclick="loadMissionAttachments()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+            <div class="attachments-list" id="attachmentsList">
+                <!-- Attachments will be loaded dynamically -->
+                <div id="attachments-loading" class="text-center w-100 py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading attachments...</p>
+                </div>
+                <div id="attachments-empty" class="text-center w-100 py-4" style="display: none;">
+                    <p>No attachments</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <div class="left-buttons">
+                {% if category != 'sv2m' %}
+                <button type="button" id="saveTemplateBtn" class="action-button" onclick="saveTemplate()" style="display: none;">
+                    <i class="fas fa-file-alt"></i> Save Template
+                </button>
+                <button type="button" id="editTemplateBtn" class="action-button" onclick="toggleTemplateEdit()">
+                    <i class="fas fa-edit"></i> Edit Template
+                </button>
+                {% endif %}
+            </div>
+            <div class="right-buttons">
+                <button type="button" class="action-button" onclick="saveDraft()">
+                    <i class="fas fa-save"></i> Save Draft
+                </button>
+                <button type="button" class="action-button" onclick="syncToAPI()">
+                    <i class="fas fa-sync"></i> Sync to API
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Script Preview Modal -->
+<div id="scriptModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Script Preview</h2>
+            <button class="close-modal" onclick="closeModal('scriptModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <pre id="scriptContent"></pre>
+        </div>
+    </div>
+</div>
+
+<!-- Description Modal -->
+<div id="descriptionModal" class="modal" style="z-index: 2000;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Mission Description</h2>
+            <button class="close-modal" onclick="closeModal('descriptionModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="missionDescription">{{ mission.description }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- Template Modal -->
+<div id="templateModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Save Template</h2>
+            <button class="close-modal" onclick="closeModal('templateModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Save this form as a template for future missions?</p>
+            <div class="template-form">
+                <div class="form-group">
+                    <label for="templateCategory">Category:</label>
+                    <select id="template-category" class="form-select">
+                        <option value="web" {% if category == 'web' %}selected{% endif %}>Web</option>
+                        <option value="host" {% if category == 'host' %}selected{% endif %}>Host</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="templateName">Template Name:</label>
+                    <input type="text" id="template-name" class="form-input" value="{{ mission.title|default('template')|lower|replace(' ', '_')|replace('/', '_') }}">
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="overwrite" value="1"> Overwrite if exists
+                    </label>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="action-button" onclick="closeModal('templateModal')">Cancel</button>
+                    <button type="button" class="submit-button" onclick="submitTemplate()">Save Template</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Template Selection Modal -->
+<div id="templateSelectionModal" class="modal" {% if needs_template_selection %}style="display: block;"{% endif %}>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Select a Template</h2>
+            <button class="close-modal" onclick="closeModal('templateSelectionModal')" {% if needs_template_selection %}style="display: none;"{% endif %}>&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>No specific template was found for this mission. Please select a default template:</p>
+            <div class="template-selector">
+                <div id="template-list" class="template-list">
+                    <!-- Templates will be inserted here -->
+                    <div class="loading">Loading templates...</div>
+                </div>
+                <div class="ai-generate">
+                    <button id="generateAiBtn" class="action-button" onclick="generateTemplateAI()" {% if not ai_enabled %}disabled{% endif %}>Generate with AI</button>
+                    <div id="ai-loading" class="loading" style="display:none;">Generating template...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tool Selection Modal -->
+<div id="toolModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Select a Tool</h2>
+            <button class="close-modal" onclick="closeModal('toolModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <input type="text" id="toolSearch" class="form-input" placeholder="Search tools..." oninput="filterToolList()">
+            <div id="toolList" class="tool-list"></div>
+        </div>
+    </div>
+</div>
+
+<!-- AI Rewrite Modal -->
+<div id="aiRewriteModal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>AI Rewrite</h2>
+            <button class="close-modal" onclick="closeModal('aiRewriteModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="task-section" style="margin-top:0;">
+                <div class="section-header"><h3>Preset</h3></div>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <select id="ai-preset-select" class="form-select" style="min-width:260px;">
+                        <option value="">— Select a preset —</option>
+                    </select>
+                </div>
+            </div>
+            <div class="task-section" style="margin-top:6px;">
+                <div class="section-header"><h3>Instruction</h3></div>
+                <textarea id="ai-modal-instruction" class="form-input" rows="6" placeholder="Describe how to rewrite the selected text (tone, structure, length, etc.)"></textarea>
+            </div>
+            <div class="form-actions" style="display:flex; justify-content:space-between; align-items:center;">
+                <div class="left-buttons">
+                    <button type="button" class="tool-button" onclick="saveAiPresetAs()"><i class="fas fa-save"></i> Save as Preset</button>
+                </div>
+                <div class="right-buttons">
+                    <button type="button" class="action-button" onclick="runAiRewriteFromModal()">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Indicator Consent Modal -->
+<div id="indicatorConsentModal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Detected Network Indicators</h2>
+            <button class="close-modal" onclick="closeModal('indicatorConsentModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="indicator-consent-message" style="margin-bottom:8px;">Please choose how to proceed.</div>
+            <div id="indicator-consent-details" class="markdown-content" style="white-space: pre-wrap; max-height:240px; overflow:auto;"></div>
+        </div>
+        <div class="form-actions">
+            <div class="right-buttons" style="display:flex; gap:8px;">
+                <button type="button" class="action-button" id="indicator-mask-btn">Auto-mask & Send</button>
+                <button type="button" class="tool-button" id="indicator-approve-btn">Approve (Send as-is)</button>
+                <button type="button" class="action-button" id="indicator-cancel-btn" style="background:#777;">Cancel</button>
+            </div>
+        </div>
+    </div>
+    </div>
+
+<!-- Upload Attachment Modal -->
+<div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="uploadModalLabel">Upload Attachment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <div class="mb-4">
+                        <div class="file-upload-container">
+                            <div class="file-drop-area" id="fileDrop">
+                                <span class="drop-message">
+                                    <i class="fas fa-cloud-upload-alt fa-2x mb-2"></i><br>
+                                    Drag and drop files here<br>or click to browse
+                                </span>
+                                <input type="file" class="form-control file-input" id="attachmentFile" name="file" multiple required>
+                            </div>
+                            <div class="selected-file" id="selectedFileInfo" style="display: none;">
+                                <i class="fas fa-file-image"></i> <span id="selectedFileName"></span>
+                                <button type="button" class="btn btn-sm btn-link" id="clearFilesBtn">Clear</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="attachmentTitle" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="attachmentTitle" name="title" placeholder="Enter a title for this attachment">
+                    </div>
+                    <div class="mb-3">
+                        <label for="attachmentDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="attachmentDescription" name="description" rows="3" placeholder="Enter a description"></textarea>
+                    </div>
+                    <div class="alert alert-danger" id="uploadError" style="display: none;"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="submitUpload">Upload</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/countdown.js') }}"></script>
+<script src="{{ url_for('static', filename='js/marked.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/mission_attachments.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize marked.js BEFORE any parse calls so breaks/GFM apply to scope
+    if (window.marked) {
+        marked.setOptions({
+            renderer: new marked.Renderer(),
+            gfm: true,
+            tables: true,
+            breaks: true,
+            pedantic: false,
+            sanitize: false,
+            smartLists: true,
+            smartypants: false
+        });
+    }
+    // Render Scope as Markdown if present
+    const scopeEl = document.getElementById('scope-content');
+    if (scopeEl && window.marked) {
+        const raw = scopeEl.textContent || scopeEl.innerText || '';
+        scopeEl.innerHTML = marked.parse(raw);
+    }
+    // Fallback missionId initialization in case global variable was not defined
+    if (typeof missionId === 'undefined') {
+        const container = document.querySelector('.mission-attachments-container');
+        if (container) {
+            window.missionId = container.dataset.missionId;
+        }
+    }
+
+    // Ensure selected files array is clear when modal opens
+    selectedFiles = [];
+    // marked.js already initialized above
+    
+    // Ensure Bootstrap is properly initialized and available
+    if (typeof bootstrap === 'undefined') {
+        console.warn('Bootstrap is not defined. Some UI components may not work correctly.');
+    } else {
+        // Initialize any Bootstrap components that need JavaScript activation
+        document.querySelectorAll('.modal.fade').forEach(modalElement => {
+            // Only initialize modals that don't already have an instance
+            if (!bootstrap.Modal.getInstance(modalElement)) {
+                try {
+                    new bootstrap.Modal(modalElement);
+                } catch (e) {
+                    console.error('Error initializing Bootstrap modal:', e);
+                }
+            }
+                // Inline AI rewrite helper
+                async function aiRewrite(fieldId, instructionInputId) {
+                    const textarea = document.getElementById(fieldId);
+                    if (!textarea) return;
+                    const instruction = document.getElementById(instructionInputId)?.value?.trim() || 'Improve clarity and structure; keep technical details.';
+                    const spinner = document.getElementById(`ai-${fieldId.includes('testing') ? 'test' : fieldId.replace('_methodology','')}-spinner`);
+
+                    const selStart = textarea.selectionStart;
+                    const selEnd = textarea.selectionEnd;
+                    if (selStart === selEnd) { showFlashMessage('Select text to rewrite first', 'error'); return; }
+                    const selected = textarea.value.slice(selStart, selEnd);
+                    if (spinner) spinner.style.display = 'inline';
+
+                    try {
+                        let res = await fetch('/ai/rewrite', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ instruction, selected_text: selected, mission_id: missionId })
+                        });
+                        let data = await res.json();
+                        if (!data.success && data.needs_user_consent) {
+                            const choice = await openIndicatorConsentModal(data);
+                            if (choice === 'cancel') throw new Error('User cancelled');
+                            res = await fetch('/ai/rewrite', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ instruction, selected_text: selected, mission_id: missionId, consent: true, automask: choice === 'mask' })
+                            });
+                            data = await res.json();
+                        }
+                        if (data.success) {
+                            const newText = data.text || '';
+                            if (selStart !== selEnd) {
+                                textarea.value = textarea.value.slice(0, selStart) + newText + textarea.value.slice(selEnd);
+                            } else {
+                                textarea.value = newText;
+                            }
+                            // refresh preview if visible
+                            const preview = document.getElementById(`${fieldId}-preview`);
+                            if (preview) preview.innerHTML = marked.parse(textarea.value);
+                        } else {
+                            alert('AI rewrite failed: ' + (data.message || 'unknown error'));
+                        }
+                    } catch (e) {
+                        console.error(e);
+                        alert('AI rewrite error: ' + e.message);
+                    } finally {
+                        if (spinner) spinner.style.display = 'none';
+                    }
+                }
+
+        });
+    }
+    
+    // Check if template selection is needed (read from data attribute)
+    const flagsEl = document.getElementById('template-selection-flags');
+    const shouldLoadDefaults = flagsEl && flagsEl.dataset.shouldLoadDefaults === 'true';
+    if (shouldLoadDefaults) loadDefaultTemplates();
+    
+    // Initialize all preview sections
+    initializePreview('introduction');
+    initializePreview('testing_methodology');
+    initializePreview('conclusion');
+    initializePreview('documentation');
+    initializePreview('scripts');
+    
+    // Set up event listener for conclusion type change
+    document.getElementById('conclusion_type').addEventListener('change', updateConclusion);
+    
+    // Initialize countdown
+    const countdownElement = document.getElementById('mission-countdown');
+    if (countdownElement) {
+        const claimedOn = countdownElement.dataset.claimedOn;
+        const returnedOn = countdownElement.dataset.returnedOn;
+        const maxSecs = parseInt(countdownElement.dataset.maxSecs, 10);
+        
+        if (maxSecs && !isNaN(maxSecs)) {
+            startCountdown('mission-countdown', claimedOn, returnedOn, maxSecs);
+        } else {
+            countdownElement.textContent = 'No deadline';
+        }
+    }
+    
+    // Disable edit template button initially
+    const editTemplateBtn = document.getElementById('editTemplateBtn');
+    if (editTemplateBtn) {
+        editTemplateBtn.disabled = false;
+        editTemplateBtn.classList.remove('disabled');
+    }
+    
+    // Initialize supporting content toggle state
+    const supportingContentBody = document.getElementById('supporting-content-body');
+    if (supportingContentBody) {
+        console.log("Initializing supporting content toggle");
+        // Start with supporting content visible instead of hidden
+        supportingContentBody.style.setProperty('display', 'block', 'important');
+        
+        // Verify initialization
+        console.log("Initial display state:", supportingContentBody.style.display);
+        console.log("Initial computed style:", window.getComputedStyle(supportingContentBody).display);
+    } else {
+        console.error("Could not find supporting-content-body element");
+    }
+    
+    const supportingContentToggle = document.getElementById('supporting-content-toggle');
+    if (supportingContentToggle) {
+        // Set toggle icon to show expanded state
+        supportingContentToggle.textContent = '▼';
+    } else {
+        console.error("Could not find supporting-content-toggle element");
+    }
+    
+    // Initialize Documentation and Scripts sections
+    // Set the previews to initially show the markdown content
+    const documentationTextarea = document.getElementById('documentation');
+    const scriptsTextarea = document.getElementById('scripts');
+    const documentationPreview = document.getElementById('documentation-preview');
+    const scriptsPreview = document.getElementById('scripts-preview');
+
+    if (documentationTextarea && documentationPreview) {
+        documentationPreview.innerHTML = marked.parse(documentationTextarea.value);
+        documentationPreview.style.display = 'block';
+        documentationTextarea.style.display = 'none';
+    }
+
+    if (scriptsTextarea && scriptsPreview) {
+        // Handle scripts properly if it's an array
+        let scriptsContent = scriptsTextarea.value;
+        scriptsPreview.innerHTML = marked.parse(scriptsContent);
+        scriptsPreview.style.display = 'block';
+        scriptsTextarea.style.display = 'none';
+    }
+
+    // Make sure the buttons show the correct state (edit mode)
+    const docEditButton = document.querySelector('button[onclick="toggleEditMode(\'documentation\')"]');
+    const scriptsEditButton = document.querySelector('button[onclick="toggleEditMode(\'scripts\')"]');
+
+    if (docEditButton) {
+        docEditButton.innerHTML = '<i class="fas fa-edit"></i> Edit';
+    }
+
+    if (scriptsEditButton) {
+        scriptsEditButton.innerHTML = '<i class="fas fa-edit"></i> Edit';
+    }
+    
+    // Auto-adjust all textareas immediately after DOM loads
+    const textareas = document.querySelectorAll('textarea.form-input');
+    textareas.forEach(textarea => {
+        // Force a minimum height for better content visibility
+        textarea.style.minHeight = '300px';
+        
+        // Do an immediate adjustment
+        autoAdjustTextareaHeight(textarea);
+        
+        // Add input event listener
+        textarea.addEventListener('input', function() {
+            autoAdjustTextareaHeight(this);
+        });
+    });
+    
+    // Do another adjustment after window loads (when all assets are loaded)
+    window.addEventListener('load', function() {
+        console.log('Window fully loaded, readjusting textareas...');
+        setTimeout(() => {
+            document.querySelectorAll('textarea.form-input').forEach(autoAdjustTextareaHeight);
+        }, 100);
+    });
+});
+
+// Function to auto-adjust textarea height based on content
+function autoAdjustTextareaHeight(textarea) {
+    if (!textarea) return;
+    
+    // Store current scroll position
+    const scrollPos = window.pageYOffset || document.documentElement.scrollTop;
+    
+    // Reset height to auto to get proper scroll height
+    textarea.style.height = 'auto';
+    
+    // Get content and calculate height based on line count
+    const content = textarea.value;
+    const lineCount = content.split('\n').length;
+    const lineHeight = parseInt(getComputedStyle(textarea).lineHeight) || 20; // Default to 20px if can't determine
+    
+    // Calculate height based on content
+    const contentHeight = textarea.scrollHeight;
+    // Use the larger of line-count based height or scroll height
+    const calculatedHeight = Math.max(contentHeight, lineCount * lineHeight + 40); // Add padding
+    const minHeight = 300; // Minimum height
+    
+    // Set the textarea height to the larger value
+    textarea.style.height = Math.max(calculatedHeight, minHeight) + 'px';
+    
+    // Restore scroll position
+    window.scrollTo(0, scrollPos);
+}
+
+// Initialize preview window for a section
+function initializePreview(sectionId) {
+    const textArea = document.getElementById(sectionId);
+    const previewDiv = document.getElementById(`${sectionId}-preview`);
+    
+    if (textArea && previewDiv) {
+        // Render the initial content
+        previewDiv.innerHTML = marked.parse(textArea.value);
+        
+        // Force the browser to compute layout before getting scrollHeight
+        setTimeout(() => {
+            // Auto-adjust the textarea height
+            autoAdjustTextareaHeight(textArea);
+        }, 0);
+        
+        // Set up event listener for changes
+        textArea.addEventListener('input', function() {
+            previewDiv.innerHTML = marked.parse(this.value);
+            autoAdjustTextareaHeight(this);
+        });
+    }
+}
+
+// Toggle preview for the given section (used by Introduction, Testing Methodology, Conclusion)
+function togglePreview(button, sectionId) {
+    const section = button.closest('.section-header-with-controls').parentElement;
+    const textArea = section.querySelector(`#${sectionId}`);
+    const previewDiv = section.querySelector('.markdown-preview');
+    
+    if (previewDiv.style.display === 'block') {
+        // Switch from preview to edit
+        previewDiv.style.display = 'none';
+        textArea.style.display = 'block';
+        // Ensure textarea has proper height
+        autoAdjustTextareaHeight(textArea);
+        button.innerHTML = '<i class="fas fa-eye"></i> Preview';
+    } else {
+        // Switch from edit to preview
+        // Update preview content before showing
+        previewDiv.innerHTML = marked.parse(textArea.value);
+        
+        // Set preview height to at least match textarea's current height
+        const textAreaHeight = textArea.offsetHeight;
+        previewDiv.style.minHeight = `${textAreaHeight}px`;
+        
+        // Show preview, hide textarea
+        previewDiv.style.display = 'block';
+        textArea.style.display = 'none';
+        button.innerHTML = '<i class="fas fa-edit"></i> Edit';
+    }
+}
+
+// Toggle preview/edit mode for Documentation and Scripts specifically
+function toggleEditMode(sectionId) {
+    const textArea = document.getElementById(sectionId);
+    const previewDiv = document.getElementById(`${sectionId}-preview`);
+    const button = document.querySelector(`button[onclick="toggleEditMode('${sectionId}')"]`);
+    
+    // If currently showing preview (textarea is hidden)
+    if (textArea.style.display === 'none') {
+        // Switch to edit mode
+        previewDiv.style.display = 'none';
+        textArea.style.display = 'block';
+        button.innerHTML = '<i class="fas fa-eye"></i> Preview';
+        autoAdjustTextareaHeight(textArea);
+    } else {
+        // Switch to preview mode
+        previewDiv.innerHTML = marked.parse(textArea.value);
+        previewDiv.style.display = 'block';
+        textArea.style.display = 'none';
+        button.innerHTML = '<i class="fas fa-edit"></i> Edit';
+    }
+}
+
+// Toggle the supporting content section
+function toggleSupportingContent() {
+    const contentBody = document.getElementById('supporting-content-body');
+    const toggle = document.getElementById('supporting-content-toggle');
+    
+    console.log("Toggle supporting content clicked");
+    console.log("Current display state:", contentBody.style.display);
+    console.log("Current computed style:", window.getComputedStyle(contentBody).display);
+    
+    // Check the computed style as the inline style might not reflect the actual display state
+    const computedDisplay = window.getComputedStyle(contentBody).display;
+    
+    if (computedDisplay === 'none') {
+        console.log("Setting display to block with !important");
+        contentBody.style.setProperty('display', 'block', 'important');
+        toggle.textContent = '▼';
+    } else {
+        console.log("Setting display to none with !important");
+        contentBody.style.setProperty('display', 'none', 'important');
+        toggle.textContent = '▶';
+    }
+    
+    // After toggle
+    console.log("New display state:", contentBody.style.display);
+    console.log("New computed style:", window.getComputedStyle(contentBody).display);
+}
+
+// Show flash message
+function showFlashMessage(message, type = 'info') {
+    // Create flash message element if it doesn't exist
+    let flashContainer = document.getElementById('flash-message-container');
+    if (!flashContainer) {
+        flashContainer = document.createElement('div');
+        flashContainer.id = 'flash-message-container';
+        flashContainer.style.position = 'fixed';
+        flashContainer.style.top = '20px';
+        flashContainer.style.right = '20px';
+        flashContainer.style.zIndex = '9999';
+        document.body.appendChild(flashContainer);
+    }
+    
+    // Create message element
+    const messageElement = document.createElement('div');
+    messageElement.className = `flash-message flash-${type}`;
+    messageElement.textContent = message;
+    
+    // Add to container
+    flashContainer.appendChild(messageElement);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        messageElement.style.opacity = '0';
+        setTimeout(() => {
+            flashContainer.removeChild(messageElement);
+            
+            // Remove container if no more messages
+            if (flashContainer.children.length === 0) {
+                document.body.removeChild(flashContainer);
+            }
+        }, 300);
+    }, 5000);
+}
+
+async function saveDraft() {
+    const formData = {
+        mission_title: "{{ mission.title }}",
+        introduction: document.getElementById('introduction').value,
+        testing_methodology: document.getElementById('testing_methodology').value,
+        documentation: document.getElementById('documentation').value,
+        conclusion_type: document.getElementById('conclusion_type').value,
+        conclusion: document.getElementById('conclusion').value,
+        category: currentCategory
+    };
+    
+    // Add scripts if the element exists
+    const scriptsElement = document.getElementById('scripts');
+    if (scriptsElement) {
+        formData.scripts = scriptsElement.value;
+    }
+    
+    try {
+        // Show a saving indicator
+        showFlashMessage('Saving draft...', 'info');
+        
+        const response = await fetch("{{ url_for('mission.save_draft_route', listing_codename=mission.listingCodename, filename=mission_id) }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            showFlashMessage('Draft saved successfully', 'success');
+            console.log("Draft saved with filename:", result.filename);
+        } else {
+            showFlashMessage('Failed to save draft', 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showFlashMessage('An error occurred while saving the draft', 'error');
+    }
+}
+
+async function syncToAPI() {
+    // Get the conclusion type (varies by category)
+    const conclusionType = document.getElementById('conclusion_type').value;
+
+    // Determine structuredResponse per category
+    let structuredResponse = '';
+    if (currentCategory === 'sv2m') {
+        // SV2M: pass through the selected value directly
+        structuredResponse = conclusionType; // 'vulnerable' | 'not_exploitable' | 'out_of_threshold'
+    } else {
+        // Other categories: map pass/fail to yes/no
+        if (conclusionType === 'pass') structuredResponse = 'no';
+        else if (conclusionType === 'fail') structuredResponse = 'yes';
+        else structuredResponse = '';
+    }
+
+    // Create the exact payload structure required by the API
+    const apiPayload = {
+        introduction: document.getElementById('introduction').value,
+        testing_methodology: document.getElementById('testing_methodology').value,
+        conclusion: document.getElementById('conclusion').value
+    };
+    if (currentCategory === 'sv2m') {
+        apiPayload.structuredResponse = structuredResponse;
+    } else if (structuredResponse === 'yes' || structuredResponse === 'no') {
+        apiPayload.structuredResponse = structuredResponse;
+    }
+    
+    // Display what's being sent in the console
+    console.log('Syncing to API with data:', apiPayload);
+    
+    try {
+        // Show a loading message
+        showFlashMessage('Syncing to API...', 'info');
+        
+        // Using the mission_id from the server
+        const response = await fetch("{{ url_for('mission.sync_to_api_route', mission_id=mission_id) }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(apiPayload)
+        });
+        
+        const result = await response.json();
+        console.log('API response:', result);
+        
+        if (result.success) {
+            showFlashMessage('Evidence synced to API successfully', 'success');
+        } else {
+            console.error('API sync failed:', result);
+            showFlashMessage(`Failed to sync evidence: ${result.message}`, 'error', 5000);
+            
+            // Create detailed error modal
+            const errorModal = document.createElement('div');
+            errorModal.id = 'errorModal';
+            errorModal.className = 'modal';
+            errorModal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Error Details</h2>
+                        <button class="close-modal" onclick="closeModal('errorModal')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <h3>Error Details:</h3>
+                        <pre>${JSON.stringify(result, null, 2)}</pre>
+                        <h3>Data Sent:</h3>
+                        <pre>${JSON.stringify(apiPayload, null, 2)}</pre>
+                        <h3>Expected Endpoint:</h3>
+                        <pre>${result.endpoint || 'Unknown'}</pre>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(errorModal);
+            errorModal.style.display = 'block';
+        }
+    } catch (error) {
+        console.error('Error during API sync:', error);
+        showFlashMessage('An error occurred while syncing the evidence to API', 'error', 5000);
+        
+        // Create detailed error modal
+        const errorModal = document.createElement('div');
+        errorModal.id = 'errorModal';
+        errorModal.className = 'modal';
+        errorModal.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Error Details</h2>
+                    <button class="close-modal" onclick="closeModal('errorModal')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <h3>Error Details:</h3>
+                    <pre>${error.toString()}</pre>
+                    <h3>Data Attempted:</h3>
+                    <pre>${JSON.stringify(apiPayload, null, 2)}</pre>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(errorModal);
+        errorModal.style.display = 'block';
+    }
+}
+
+function saveTemplate() {
+    // Check if we're in template editing mode (dual conclusion mode)
+    const dualConclusionContainer = document.getElementById('dual-conclusion-container');
+    if (dualConclusionContainer.style.display !== 'block') {
+        showFlashMessage('Please click "Edit Template" first to enable template editing mode', 'error');
+        return;
+    }
+    
+    // Validate that both pass and fail conclusions have content
+    const conclusionPass = document.getElementById('conclusion-pass').value.trim();
+    const conclusionFail = document.getElementById('conclusion-fail').value.trim();
+    
+    if (!conclusionPass || !conclusionFail) {
+        showFlashMessage('Both pass and fail conclusions must have content before saving template', 'error');
+        return;
+    }
+    
+    // Make sure the template name is set
+    const templateName = document.getElementById('template-name');
+    if (templateName && !templateName.value) {
+        // Try to get a good default name for the template
+        let title = "{{ mission.title|default('template')|lower|replace(' ', '_')|replace('/', '_') }}";
+        templateName.value = title;
+    }
+    
+    // Show the modal
+    document.getElementById('templateModal').style.display = 'block';
+}
+
+function showDescription() {
+    console.log("showDescription called");
+    const modal = document.getElementById('descriptionModal');
+    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    modal.style.display = 'block';
+    
+    // Make sure modal is on top of everything
+    modal.style.zIndex = '2000';
+    
+    // Remove any existing event listeners to prevent conflicts
+    modal.removeEventListener('click', modalClickHandler);
+    
+    // Add event listeners to handle clicking outside
+    modal.addEventListener('click', modalClickHandler);
+    
+    console.log("Description modal displayed");
+}
+
+// Separate function to handle modal click events
+function modalClickHandler(event) {
+    if (event.target === event.currentTarget) {
+        closeModal('descriptionModal');
+    }
+}
+
+async function submitTemplate() {
+    const category = document.getElementById('template-category').value;
+    const templateName = document.getElementById('template-name').value;
+    const overwrite = document.getElementById('overwrite').checked;
+    
+    if (!templateName.trim()) {
+        showFlashMessage('Please enter a template name', 'error');
+        return;
+    }
+
+    console.log("Saving template with name:", templateName, "and category:", category);
+
+    // Create the form data - include the template name explicitly
+    const formData = {
+        template_name: templateName,  // Add this line to include the template name
+        category: category,  // Add category explicitly
+        introduction: document.getElementById('introduction').value,
+        testing_methodology: document.getElementById('testing_methodology').value,
+        documentation: document.getElementById('documentation').value,
+        scripts: document.getElementById('scripts').value
+    };
+    
+    // Handle conclusion based on mode (single or dual)
+    const dualConclusionContainer = document.getElementById('dual-conclusion-container');
+    if (dualConclusionContainer && dualConclusionContainer.style.display === 'block') {
+        // We're in dual conclusion mode, get both conclusions
+        formData['conclusion-pass'] = document.getElementById('conclusion-pass').value;
+        formData['conclusion-fail'] = document.getElementById('conclusion-fail').value;
+    } else {
+        // We're in single conclusion mode, get the selected conclusion type
+        const conclusionType = document.getElementById('conclusion_type').value;
+        formData.conclusion_type = conclusionType;
+        formData.conclusion = document.getElementById('conclusion').value;
+    }
+    
+    try {
+        // Show saving indicator
+        showFlashMessage('Saving template...', 'info');
+        
+        // Use a simpler URL approach - just the base endpoint with query params
+        const response = await fetch(`/save_template?category=${encodeURIComponent(category)}&overwrite=${overwrite}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+        
+        const result = await response.json();
+        console.log("Template save response:", result);
+        
+        if (!result.success && result.exists && !overwrite) {
+            // Create a confirmation dialog
+            if (confirm('Template already exists. Do you want to overwrite it?')) {
+                // Retry with overwrite=true
+                document.getElementById('overwrite').checked = true;
+                submitTemplate();
+            }
+        } else if (result.success) {
+            showFlashMessage(result.message || 'Template saved successfully', 'success');
+            closeModal('templateModal');
+        } else {
+            showFlashMessage(result.message || 'Failed to save template', 'error');
+        }
+    } catch (error) {
+        console.error('Error saving template:', error);
+        showFlashMessage('An error occurred while saving the template', 'error');
+    }
+}
+
+function viewScript(scriptName) {
+    fetch("{{ url_for('mission.view_script', category=category, script_name='') }}" + scriptName)
+        .then(response => response.text())
+        .then(content => {
+            document.getElementById('scriptContent').textContent = content;
+            document.getElementById('scriptModal').style.display = 'block';
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to load script content');
+        });
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = ''; // Restore scrolling
+        
+        // Clean up event listeners for descriptionModal to prevent conflicts
+        if (modalId === 'descriptionModal') {
+            modal.removeEventListener('click', modalClickHandler);
+        }
+    }
+}
+
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+// AI Rewrite Modal Logic
+let _aiTargetField = null;
+let _aiSelection = '';
+
+function openAiRewriteModal(fieldId) {
+    _aiTargetField = fieldId;
+    const ta = document.getElementById(fieldId);
+    if (!ta) return;
+    const s = ta.selectionStart, e = ta.selectionEnd;
+    _aiSelection = (s !== e) ? ta.value.slice(s, e) : '';
+    if (!_aiSelection || !_aiSelection.trim()) {
+        showFlashMessage('Select text to rewrite first', 'error');
+        return;
+    }
+    loadAiPresets(fieldId);
+    // Reset preset select and hook up change handler
+    setTimeout(() => {
+        const sel = document.getElementById('ai-preset-select');
+        if (sel) {
+            sel.onchange = () => {
+                const opt = sel.selectedOptions && sel.selectedOptions[0];
+                const content = opt && opt.dataset ? (opt.dataset.content || '') : '';
+                if (content) document.getElementById('ai-modal-instruction').value = content;
+            };
+        }
+        const instr = document.getElementById('ai-modal-instruction');
+        const critical = '**Critical** Your input will be inserted into the documentation as is. Do not reply with anything additional or ask follow up questions.';
+        if (instr && !instr.value.trim()) {
+            instr.value = critical + '\n\n';
+        }
+    }, 0);
+    openModal('aiRewriteModal');
+}
+
+function loadAiPresets(section) {
+    const qs = section ? ('?section=' + encodeURIComponent(section)) : '';
+    fetch('/ai/prompts' + qs)
+    .then(r => r.json())
+    .then(data => {
+        const select = document.getElementById('ai-preset-select');
+        if (!select) return;
+        select.innerHTML = '<option value="">— Select a preset —</option>';
+        if (!data.success || !data.prompts || !data.prompts.length) return;
+
+        // Group by top-level subfolder and source (Section/Global)
+        const groups = new Map(); // key -> {label, options: []}
+        const order = [];
+        (data.prompts || []).forEach(p => {
+            const rel = (p.display || p.name || '').toString();
+            const source = (p.source === 'global') ? 'Global' : 'Section';
+            let group = '(root)';
+            let itemLabel = rel;
+            if (rel.includes('/')) {
+                const parts = rel.split('/');
+                group = parts[0] || '(root)';
+                itemLabel = parts.slice(1).join('/') || parts[0];
+            }
+            const groupKey = source + ' — ' + group;
+            if (!groups.has(groupKey)) {
+                groups.set(groupKey, { label: groupKey, options: [] });
+                order.push(groupKey);
+            }
+            groups.get(groupKey).options.push({
+                value: p.name,
+                text: itemLabel,
+                content: p.content || '',
+                source: p.source || 'section'
+            });
+        });
+
+        // Ensure Section groups come before Global groups; within each, preserve discovery order
+        const sortedKeys = order.sort((a, b) => {
+            const aIsGlobal = a.startsWith('Global');
+            const bIsGlobal = b.startsWith('Global');
+            if (aIsGlobal !== bIsGlobal) return aIsGlobal ? 1 : -1; // Section first
+            return 0; // stable order otherwise
+        });
+
+        sortedKeys.forEach(k => {
+            const grp = groups.get(k);
+            const og = document.createElement('optgroup');
+            og.label = grp.label;
+            grp.options.forEach(o => {
+                const opt = document.createElement('option');
+                opt.value = o.value;
+                opt.textContent = o.text;
+                opt.dataset.content = o.content;
+                opt.dataset.source = o.source;
+                og.appendChild(opt);
+            });
+            select.appendChild(og);
+        });
+    })
+    .catch(() => {});
+}
+
+function saveAiPresetAs() {
+    const content = document.getElementById('ai-modal-instruction').value.trim();
+    if (!content) { alert('Instruction is empty'); return; }
+    let name = document.getElementById('ai-preset-select')?.value || '';
+    if (!name) {
+        name = prompt('Preset name:');
+        if (!name) return;
+    }
+    const section = _aiTargetField || '';
+    fetch('/ai/prompts', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name, content, section }) })
+        .then(r => r.json())
+        .then(data => { if (data.success) { loadAiPresets(section); } else { alert(data.message || 'Failed to save preset'); } });
+}
+
+function runAiRewriteFromModal() {
+    if (!_aiTargetField) return;
+    const instrEl = document.getElementById('ai-modal-instruction');
+    const critical = '**Critical** Your input will be inserted into the documentation as is. Do not reply with anything additional or ask follow up questions.';
+    const fallback = critical + '\n\n' + 'Improve clarity and structure; keep technical details.';
+    const instruction = (instrEl?.value || '').trim() || fallback;
+    const spinner = document.getElementById(`ai-${_aiTargetField.includes('testing') ? 'test' : _aiTargetField.replace('_methodology','')}-spinner`);
+    const ta = document.getElementById(_aiTargetField);
+    if (!_aiSelection || !_aiSelection.trim()) { showFlashMessage('Select text to rewrite first', 'error'); return; }
+
+    if (spinner) spinner.style.display = 'inline';
+    fetch('/ai/rewrite', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ instruction, selected_text: _aiSelection, mission_id: missionId }) })
+    .then(r => r.json())
+    .then(async data => {
+        if (!data.success && data.needs_user_consent) {
+            const choice = await openIndicatorConsentModal(data);
+            if (choice === 'cancel') { throw new Error('User cancelled'); }
+            const r2 = await fetch('/ai/rewrite', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ instruction, selected_text: _aiSelection, mission_id: missionId, consent: true, automask: choice === 'mask' }) });
+            data = await r2.json();
+        }
+        if (data.success) {
+            const s = ta.selectionStart, e = ta.selectionEnd;
+            const newText = data.text || '';
+            if (s !== e) {
+                ta.value = ta.value.slice(0, s) + newText + ta.value.slice(e);
+            } else {
+                ta.value = newText;
+            }
+            const preview = document.getElementById(`${_aiTargetField}-preview`);
+            if (preview) preview.innerHTML = marked.parse(ta.value);
+            closeModal('aiRewriteModal');
+        } else {
+            alert('AI rewrite failed: ' + (data.message || 'unknown error'));
+        }
+    })
+    .catch(e => alert('AI rewrite error: ' + e.message))
+    .finally(() => { if (spinner) spinner.style.display = 'none'; });
+}
+
+// Open a tri-option consent modal; resolves to 'mask' | 'approve' | 'cancel'
+function openIndicatorConsentModal(data) {
+    return new Promise(resolve => {
+        const modalId = 'indicatorConsentModal';
+        const msg = document.getElementById('indicator-consent-message');
+        const det = document.getElementById('indicator-consent-details');
+        const maskBtn = document.getElementById('indicator-mask-btn');
+        const approveBtn = document.getElementById('indicator-approve-btn');
+        const cancelBtn = document.getElementById('indicator-cancel-btn');
+
+        msg.textContent = data.message || 'Network indicators detected. Choose how to proceed:';
+        const details = [];
+        if (Array.isArray(data.hosts) && data.hosts.length) { details.push('Hosts:\n - ' + data.hosts.join('\n - ')); }
+        if (Array.isArray(data.ips) && data.ips.length) { details.push('IPs:\n - ' + data.ips.join('\n - ')); }
+        det.textContent = details.join('\n\n');
+
+        const cleanup = (val) => {
+            maskBtn.onclick = null; approveBtn.onclick = null; cancelBtn.onclick = null;
+            closeModal(modalId);
+            resolve(val);
+        };
+        maskBtn.onclick = () => cleanup('mask');
+        approveBtn.onclick = () => cleanup('approve');
+        cancelBtn.onclick = () => cleanup('cancel');
+        openModal(modalId);
+    });
+}
+
+// Import and folder-open features are intentionally removed; users can copy text files to text_templates/ai_prompts.
+
+// Preset dropdown removed from inline UI; use modal to manage/apply presets.
+
+function escapeHtml(str) {
+    return str.replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[s]));
+}
+
+// Update conclusion content based on type selection
+async function updateConclusion() {
+    const conclusionType = document.getElementById('conclusion_type').value;
+    
+    try {
+        const response = await fetch("{{ url_for('mission.get_conclusion', listing_codename=mission.listingCodename, mission_id=mission_id) }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ conclusion_type: conclusionType })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            document.getElementById('conclusion').value = result.conclusion;
+            // Update the preview if it's currently shown
+            const previewDiv = document.getElementById('conclusion-preview');
+            if (previewDiv && previewDiv.style.display === 'block') {
+                previewDiv.innerHTML = marked.parse(result.conclusion);
+            }
+        }
+    } catch (error) {
+        console.error('Error fetching conclusion:', error);
+    }
+}
+
+// Close modals when clicking outside (except for descriptionModal which has its own handler)
+window.onclick = function(event) {
+    const modals = document.getElementsByClassName('modal');
+    for (let i = 0; i < modals.length; i++) {
+        // Skip the descriptionModal as it has its own specific click handler
+        if (modals[i].id === 'descriptionModal') {
+            continue;
+        }
+        if (event.target === modals[i]) {
+            modals[i].style.display = 'none';
+            // Restore scrolling for all modals
+            document.body.style.overflow = '';
+        }
+    }
+}
+
+function toggleTemplateEdit() {
+    const editTemplateBtn = document.getElementById('editTemplateBtn');
+    const saveTemplateBtn = document.getElementById('saveTemplateBtn');
+    const singleConclusionContainer = document.getElementById('conclusion').parentElement;
+    const dualConclusionContainer = document.getElementById('dual-conclusion-container');
+    
+    if (dualConclusionContainer.style.display === 'none') {
+        // Switch to dual conclusion mode
+        singleConclusionContainer.style.display = 'none';
+        dualConclusionContainer.style.display = 'block';
+        editTemplateBtn.innerHTML = '<i class="fas fa-times"></i> Cancel Edit';
+        
+        // Show the save template button
+        saveTemplateBtn.style.display = 'inline-block';
+        
+        // Get current conclusion and populate the correct textarea
+        const conclusionType = document.getElementById('conclusion_type').value;
+        const currentConclusion = document.getElementById('conclusion').value;
+        
+        // Create a helper function to avoid code duplication
+        const fetchConclusion = async (type) => {
+            try {
+                // Store the current value first
+                const currentTextArea = document.getElementById(`conclusion-${type}`);
+                const currentValue = currentTextArea.value;
+                
+                // Only fetch from server if the current value is empty
+                if (!currentValue.trim()) {
+                    const response = await fetch("{{ url_for('mission.get_conclusion', listing_codename=mission.listingCodename, mission_id=mission_id) }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ conclusion_type: type })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        currentTextArea.value = result.conclusion;
+                        // Initialize preview
+                        document.getElementById(`conclusion-${type}-preview`).innerHTML = marked.parse(result.conclusion);
+                        // Auto-adjust height for textarea
+                        autoAdjustTextareaHeight(currentTextArea);
+                    }
+                } else {
+                    // Just update the preview with current value
+                    document.getElementById(`conclusion-${type}-preview`).innerHTML = marked.parse(currentValue);
+                    autoAdjustTextareaHeight(currentTextArea);
+                }
+            } catch (error) {
+                console.error(`Error fetching ${type} conclusion:`, error);
+                // If current conclusion type matches the requested type, use that
+                if (conclusionType === type) {
+                    document.getElementById(`conclusion-${type}`).value = currentConclusion;
+                    document.getElementById(`conclusion-${type}-preview`).innerHTML = marked.parse(currentConclusion);
+                    autoAdjustTextareaHeight(document.getElementById(`conclusion-${type}`));
+                }
+            }
+        };
+        
+        // Fetch both conclusion types in parallel
+        Promise.all([
+            fetchConclusion('pass'),
+            fetchConclusion('fail')
+        ]).then(() => {
+            console.log('Both conclusions loaded');
+        });
+        
+        // Initialize previews for both conclusions
+        initializePreview('conclusion-pass');
+        initializePreview('conclusion-fail');
+        
+        showFlashMessage('Template editing enabled - you can now save your template', 'info');
+    } else {
+        // Switch back to single conclusion mode
+        dualConclusionContainer.style.display = 'none';
+        singleConclusionContainer.style.display = 'block';
+        editTemplateBtn.innerHTML = '<i class="fas fa-edit"></i> Edit Template';
+        
+        // Hide the save template button
+        saveTemplateBtn.style.display = 'none';
+        
+        // Update the single conclusion based on the current dropdown selection
+        const conclusionType = document.getElementById('conclusion_type').value;
+        const currentTypeArea = document.getElementById(`conclusion-${conclusionType}`);
+        if (currentTypeArea) {
+            document.getElementById('conclusion').value = currentTypeArea.value;
+            document.getElementById('conclusion-preview').innerHTML = marked.parse(currentTypeArea.value);
+            autoAdjustTextareaHeight(document.getElementById('conclusion'));
+        }
+        
+        showFlashMessage('Template editing disabled', 'info');
+    }
+}
+
+// Upload modal function is now handled by mission_attachments.js
+
+// Upload functions are now handled by mission_attachments.js
+
+// Attachment functions are now handled by mission_attachments.js
+
+
+
+// Function to load default templates
+function loadDefaultTemplates() {
+    const templateList = document.getElementById('template-list');
+    if (!templateList) return;
+    
+    // Show loading state
+    templateList.innerHTML = '<div class="loading">Loading templates...</div>';
+    
+    // Fetch default templates
+    fetch('/get_default_templates')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.templates && data.templates.length > 0) {
+                let html = '';
+                
+                // Create template cards
+                data.templates.forEach(template => {
+                    html += `
+                        <div class="template-card" onclick="selectDefaultTemplate('${template.path}')">
+                            <div class="template-card-content">
+                                <h3>${template.display_name || template.name}</h3>
+                                <button class="btn btn-primary">Select Template</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                templateList.innerHTML = html;
+            } else {
+                templateList.innerHTML = '<div class="error">No default templates found</div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading default templates:', error);
+            templateList.innerHTML = '<div class="error">Failed to load templates</div>';
+        });
+}
+
+// Function to select a default template
+function selectDefaultTemplate(templatePath) {
+    console.log(`Selecting template: ${templatePath}`);
+    
+    // Show loading state
+    document.getElementById('template-list').innerHTML = '<div class="loading">Loading selected template...</div>';
+    
+    // Load the template content
+    fetch('/load_default_template', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            template_name: templatePath
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Populate form fields with template content
+            if (data.sections) {
+                document.getElementById('introduction').value = data.sections.introduction || '';
+                document.getElementById('testing_methodology').value = data.sections.testing || '';
+                document.getElementById('documentation').value = data.sections.documentation || '';
+                
+                // Handle conclusion based on what's available
+                if (data.sections['conclusion-pass']) {
+                    document.getElementById('conclusion_type').value = 'pass';
+                    document.getElementById('conclusion').value = data.sections['conclusion-pass'] || '';
+                } else {
+                    document.getElementById('conclusion_type').value = 'pass';
+                    document.getElementById('conclusion').value = data.sections['conclusion-fail'] || '';
+                }
+                
+                // Handle scripts if they exist
+                if (data.scripts && Array.isArray(data.scripts)) {
+                    document.getElementById('scripts').value = data.scripts.join('\n');
+                }
+                
+                // Update all previews
+                document.querySelectorAll('.markdown-preview').forEach(preview => {
+                    const textareaId = preview.id.replace('-preview', '');
+                    const textarea = document.getElementById(textareaId);
+                    if (textarea) {
+                        preview.innerHTML = marked.parse(textarea.value);
+                    }
+                });
+                
+                // Close the modal
+                closeModal('templateSelectionModal');
+                
+                // Show success message
+                showFlashMessage('Template loaded successfully', 'success');
+            }
+        } else {
+            showFlashMessage('Failed to load template: ' + (data.message || 'Unknown error'), 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error loading template:', error);
+        showFlashMessage('An error occurred while loading the template', 'error');
+    });
+}
+
+// Generate template with AI
+function generateTemplateAI() {
+    const btn = document.getElementById('generateAiBtn');
+    const loading = document.getElementById('ai-loading');
+    if (!btn) return;
+    btn.disabled = true;
+    if (loading) loading.style.display = 'block';
+
+    fetch(`/generate_ai_template/${missionId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success && data.needs_user_consent) {
+                openIndicatorConsentModal(data).then(choice => {
+                    if (choice === 'cancel') { btn.disabled = false; if (loading) loading.style.display = 'none'; return; }
+                    if (loading) loading.style.display = 'block';
+                    btn.disabled = true;
+                    fetch(`/generate_ai_template/${missionId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ consent: true, automask: choice === 'mask' }) })
+                        .then(r => r.json())
+                        .then(d2 => { btn.disabled = false; if (loading) loading.style.display = 'none'; applyAiTemplate(d2); })
+                        .catch(err => { btn.disabled = false; if (loading) loading.style.display = 'none'; showFlashMessage('AI error: ' + err, 'error'); });
+                });
+                return;
+            }
+            if (loading) loading.style.display = 'none';
+            btn.disabled = false;
+            applyAiTemplate(data);
+        })
+        .catch(err => {
+            if (loading) loading.style.display = 'none';
+            btn.disabled = false;
+            console.error('Error generating template:', err);
+            showFlashMessage('An error occurred while generating the template', 'error');
+        });
+}
+
+function applyAiTemplate(data) {
+    if (data && data.success && data.sections) {
+        document.getElementById('introduction').value = data.sections.introduction || '';
+        document.getElementById('testing_methodology').value = data.sections.testing_methodology || '';
+        document.getElementById('documentation').value = data.sections.documentation || '';
+
+        if (data.sections['conclusion-pass']) {
+            document.getElementById('conclusion_type').value = 'pass';
+            document.getElementById('conclusion').value = data.sections['conclusion-pass'];
+        } else if (data.sections['conclusion-fail']) {
+            document.getElementById('conclusion_type').value = 'fail';
+            document.getElementById('conclusion').value = data.sections['conclusion-fail'];
+        }
+
+        if (data.sections.scripts && Array.isArray(data.sections.scripts)) {
+            document.getElementById('scripts').value = data.sections.scripts.join('\n');
+        }
+
+        document.querySelectorAll('.markdown-preview').forEach(preview => {
+            const textareaId = preview.id.replace('-preview', '');
+            const textarea = document.getElementById(textareaId);
+            if (textarea) preview.innerHTML = marked.parse(textarea.value);
+        });
+
+        closeModal('templateSelectionModal');
+        showFlashMessage('Template generated successfully', 'success');
+    } else {
+        showFlashMessage('Failed to generate template: ' + ((data && data.message) || 'Unknown error'), 'error');
+    }
+}
+
+// --- Tool helper functions ---
+let availableTools = [];
+
+function openToolModal() {
+    const modal = document.getElementById('toolModal');
+    if (modal) {
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        loadToolList();
+    }
+}
+
+function loadToolList() {
+    fetch('/get_tools')
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                availableTools = data.tools || [];
+                renderToolList(availableTools);
+            }
+        })
+        .catch(err => console.error('Error loading tools:', err));
+}
+
+function renderToolList(tools) {
+    const list = document.getElementById('toolList');
+    if (!list) return;
+    if (tools.length === 0) {
+        list.innerHTML = '<p>No tools found</p>';
+        return;
+    }
+    list.innerHTML = tools.map(t => `<div class="tool-item" onclick="selectTool('${t}')">${t}</div>`).join('');
+}
+
+function filterToolList() {
+    const search = document.getElementById('toolSearch').value.toLowerCase();
+    const filtered = availableTools.filter(t => t.toLowerCase().includes(search));
+    renderToolList(filtered);
+}
+
+function selectTool(name) {
+    fetch('/get_tool', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            insertTool(data.content);
+            closeModal('toolModal');
+        }
+    })
+    .catch(err => console.error('Error loading tool:', err));
+}
+
+function insertTool(content) {
+    const textarea = document.getElementById('testing_methodology');
+    if (!textarea) return;
+    let value = textarea.value;
+
+    const headerRegex = /^#####\s*Tools.*$/im;
+    const match = headerRegex.exec(value);
+
+    const toolBlock = content + '\n\n';
+
+    if (match) {
+        const start = match.index + match[0].length;
+        const pos = value.indexOf('\n', start);
+        const insertPos = pos !== -1 ? pos + 1 : value.length;
+        value = value.slice(0, insertPos) + toolBlock + value.slice(insertPos);
+    } else {
+        value += `\n##### Tools:\n${toolBlock}`;
+    }
+
+    textarea.value = value;
+    const previewDiv = document.getElementById('testing_methodology-preview');
+    if (previewDiv && previewDiv.style.display === 'block') {
+        previewDiv.innerHTML = marked.parse(value);
+    }
+}
+</script>
+{% endblock scripts %} 

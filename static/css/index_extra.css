@@ -1,0 +1,66 @@
+.mission-container {
+    margin-top: 20px;
+    border-radius: 8px;
+}
+
+.mission-row {
+    padding: 15px;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+    position: relative;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border-radius: 6px;
+}
+
+.mission-row:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 5px rgba(0,0,0,0.15);
+}
+
+.mission-row.claimed {
+    background-color: rgba(255, 193, 7, 0.1);
+}
+
+.mission-title {
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-bottom: 8px;
+    color: var(--text-color);
+}
+
+.mission-details {
+    font-size: 0.85em;
+    color: var(--text-muted);
+}
+
+.countdown {
+    font-weight: bold;
+}
+
+.payout-amount {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.badge-asset-type {
+    font-size: 0.7em;
+    margin-right: 3px;
+    background-color: var(--badges-bg);
+    color: var(--badges-text);
+}
+
+.badge-attack-type {
+    font-size: 0.7em;
+    margin-right: 3px;
+    background-color: var(--attack-badges-bg);
+    color: var(--attack-badges-text);
+}
+
+.button-container {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.button-container .btn {
+    margin-left: 5px;
+}

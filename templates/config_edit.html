@@ -1,0 +1,560 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Config{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/missionform.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/missionform_extra.css') }}">
+{% endblock %}
+
+{% block content %}
+<style>
+  .cfg-help { opacity: 0.85; color: var(--text-secondary); font-size: 0.9em; margin-top: 6px; }
+  .dir-item { padding: 8px 10px; border-radius: 6px; cursor: pointer; display:flex; align-items:center; gap:8px; }
+  .dir-item:hover { background: var(--bg-hover); }
+  .dir-path { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; color: var(--text-secondary); }
+  /* Bound input width on this page so fields don't stretch excessively on wide screens */
+  #configForm .form-input { max-width: 900px; display: block; }
+  #configForm .form-label { display: block; }
+  /* Keep Save Folder + Browse inline without breaking max width */
+  #configForm .inline-row { display:flex; gap:8px; align-items:center; flex-wrap: wrap; }
+  #configForm .inline-row .form-input { display: inline-block; }
+  /* For rows that must never wrap (AI key), keep on one line and let input flex */
+  #configForm .inline-row.nowrap { flex-wrap: nowrap; }
+  #configForm .inline-row.nowrap .form-input { width: auto !important; flex: 1 1 auto; min-width: 0; }
+  #configForm .inline-row.nowrap .tool-button { flex: 0 0 auto; }
+  #configForm .inline-row.nowrap label.form-label { white-space: nowrap; }
+</style>
+<div class="content-wrapper">
+  <h1>Edit Configuration</h1>
+  <div id="config-message" style="margin: 8px 0; display:none;"></div>
+  <form id="configForm" class="mission-form" onsubmit="return false;">
+    <div class="task-section">
+      <div class="section-header"><h2>Core</h2></div>
+      <label class="form-label">Platform URL</label>
+      <input id="cfg-platform" class="form-input" type="text" placeholder="https://platform.synack.com" />
+
+      <label class="form-label">Save Folder</label>
+      <div class="inline-row">
+        <input id="cfg-working" class="form-input" type="text" placeholder="/path/to/save" />
+        <button type="button" class="tool-button" onclick="openDirBrowser('cfg-working')"><i class="fas fa-folder-open"></i> Browse</button>
+      </div>
+
+      <label class="form-label">User Templates Directory</label>
+      <div class="inline-row">
+        <input id="cfg-user-templates" class="form-input" type="text" placeholder="/path/to/user/templates (optional)" />
+        <button type="button" class="tool-button" onclick="openDirBrowser('cfg-user-templates')"><i class="fas fa-folder-open"></i> Browse</button>
+      </div>
+      <div class="cfg-help">If set, templates and tools here override the built-in ones. We'll scaffold folders as needed.</div>
+
+      <label class="form-label">Token File</label>
+      <input id="cfg-token" class="form-input" type="text" placeholder="/tmp/synacktoken" />
+
+      <div class="cfg-help">Note: Save Folder is where tasks and drafts are stored.</div>
+    </div>
+
+    <div class="task-section">
+      <div class="section-header"><h2>AI</h2></div>
+      <label class="form-label">AI Model</label>
+      <input id="cfg-aimodel" class="form-input" type="text" placeholder="models/text-bison-001" />
+
+  <div class="inline-row nowrap">
+        <label class="form-label" style="margin:0; min-width:80px;">AI <i class="fas fa-key"></i></label>
+        <input id="cfg-aikey" class="form-input" type="password" placeholder="********" />
+        <button id="cfg-aikey-toggle" type="button" class="tool-button" title="Show/Hide" style="flex:0 0 auto;">
+          <i id="cfg-aikey-icon" class="fas fa-eye"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="task-section">
+      <div class="section-header"><h2>Toolbin</h2></div>
+      <div class="cfg-help">Manage reusable tools text. These live under your User Templates Directory at tools/tools.txt and override built-ins.</div>
+      <div class="inline-row" style="margin-top:8px; gap:12px; align-items: flex-start;">
+        <div style="flex: 1 0 280px; max-width: 340px;">
+          <input id="tool-search" class="form-input" type="text" placeholder="Search tools..." oninput="filterToolList()" />
+          <select id="tool-select" class="form-input" size="10" style="width:100%; margin-top:8px;" onchange="onSelectTool()"></select>
+          <div class="inline-row" style="margin-top:8px;">
+            <button class="tool-button" type="button" onclick="renameSelectedTool()"><i class="fas fa-i-cursor"></i> Rename</button>
+            <button class="tool-button" type="button" onclick="deleteSelectedTool()"><i class="fas fa-trash"></i> Delete</button>
+          </div>
+        </div>
+        <div style="flex: 3 1 600px;">
+          <div id="tool-preview" class="mission-card" style="min-height:120px; white-space:pre-wrap; display:none;"></div>
+          <div id="tool-editor" style="display:none; margin-top:8px;">
+            <textarea id="tool-editor-text" class="form-input" rows="10" style="width:100%;"></textarea>
+            <div class="form-actions" style="margin-top:8px;">
+              <div class="right-buttons">
+                <button class="action-button" type="button" onclick="saveSelectedTool()">Save</button>
+                <button class="tool-button" type="button" onclick="cancelToolEdit()">Cancel</button>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:8px;">
+            <button id="tool-edit-btn" class="tool-button" type="button" onclick="editSelectedTool()"><i class="fas fa-edit"></i> Edit</button>
+          </div>
+          <hr style="border:none; border-top:1px solid var(--border-color); margin:16px 0;" />
+          <h3 style="margin:6px 0;">Add New Tool</h3>
+          <div class="inline-row">
+            <input id="tool-new-name" class="form-input" type="text" placeholder="Tool name (e.g., nmap-basic)" style="max-width:320px;" />
+            <button type="button" class="tool-button" onclick="saveNewTool()"><i class="fas fa-plus"></i> Add</button>
+          </div>
+          <textarea id="tool-new-content" class="form-input" placeholder="Tool content..." rows="6" style="width:100%;"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="task-section">
+      <div class="section-header"><h2>AI Prompts</h2></div>
+      <div class="cfg-help">Manage AI prompt presets in your user templates dir under ai_prompts/. Leave Section blank to work with global presets.</div>
+      <div class="inline-row" style="gap:8px; align-items:center;">
+        <input id="prompt-section" class="form-input" type="text" placeholder="Section (e.g., web) or blank for global" style="max-width:300px;" />
+        <button class="tool-button" type="button" onclick="loadPrompts()"><i class="fas fa-sync"></i> Load</button>
+        <button class="tool-button" type="button" onclick="openPromptFolder()"><i class="fas fa-folder-open"></i> Open Folder</button>
+      </div>
+      <div class="inline-row" style="margin-top:8px; gap:12px; align-items: flex-start;">
+        <div style="flex: 1 0 280px; max-width: 340px;">
+          <input id="prompt-search" class="form-input" type="text" placeholder="Search prompts..." oninput="filterPromptList()" />
+          <select id="prompt-select" class="form-input" size="10" style="width:100%; margin-top:8px;" onchange="onSelectPrompt()"></select>
+          <div class="inline-row" style="margin-top:8px;">
+            <button class="tool-button" type="button" onclick="renameSelectedPrompt()"><i class="fas fa-i-cursor"></i> Rename</button>
+            <button class="tool-button" type="button" onclick="deleteSelectedPrompt()"><i class="fas fa-trash"></i> Delete</button>
+          </div>
+        </div>
+        <div style="flex: 3 1 600px;">
+          <div id="prompt-preview" class="mission-card" style="min-height:120px; white-space:pre-wrap; display:none;"></div>
+          <div id="prompt-editor" style="display:none; margin-top:8px;">
+            <input id="prompt-editor-name" class="form-input" type="text" placeholder="Prompt file name (e.g., rewrite-style.txt)" style="max-width:320px;" />
+            <textarea id="prompt-editor-text" class="form-input" rows="10" style="width:100%; margin-top:8px;"></textarea>
+            <div class="form-actions" style="margin-top:8px;">
+              <div class="right-buttons">
+                <button class="action-button" type="button" onclick="savePromptEdit()">Save</button>
+                <button class="tool-button" type="button" onclick="cancelPromptEdit()">Cancel</button>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:8px;">
+            <button class="tool-button" type="button" onclick="editSelectedPrompt()"><i class="fas fa-edit"></i> Edit</button>
+          </div>
+          <hr style="border:none; border-top:1px solid var(--border-color); margin:16px 0;" />
+          <h3 style="margin:6px 0;">Add New Prompt</h3>
+          <div class="inline-row">
+            <input id="prompt-new-name" class="form-input" type="text" placeholder="Prompt name (e.g., rewrite-clarity)" style="max-width:320px;" />
+            <button type="button" class="tool-button" onclick="saveNewPrompt()"><i class="fas fa-plus"></i> Add</button>
+          </div>
+          <textarea id="prompt-new-content" class="form-input" placeholder="Prompt content..." rows="6" style="width:100%;"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <div class="right-buttons">
+        <button id="cfg-save" type="button" class="action-button" onclick="saveConfig()">Save</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- Directory Browser Modal -->
+<div id="dirModal" class="modal" aria-hidden="true">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Select Folder</h2>
+      <button type="button" class="close-modal" onclick="closeDirModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
+        <span>Path:</span> <span id="dirCurrentPath" class="dir-path"></span>
+        <button type="button" class="tool-button" onclick="dirUp()"><i class="fas fa-level-up-alt"></i> Up</button>
+        <button type="button" class="tool-button" onclick="refreshDir()"><i class="fas fa-sync"></i> Refresh</button>
+      </div>
+      <div id="dirList"></div>
+      <div class="form-actions" style="margin-top:12px;">
+        <div class="right-buttons">
+          <button type="button" class="action-button" onclick="chooseCurrentDir()">Choose This Folder</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+<script>
+function showMsg(text, type) {
+  const el = document.getElementById('config-message');
+  if (!el) return;
+  el.textContent = text;
+  el.style.display = 'block';
+  el.style.color = type === 'error' ? 'var(--error-color)' : 'var(--success-color)';
+}
+
+let _aiKey = '';
+let _aiKeyRevealed = false;
+
+function loadConfig() {
+  fetch('/config')
+    .then(r => r.json())
+    .then(data => {
+  if (!data.success) { showMsg(data.message || 'Failed to load config', 'error'); return; }
+  const c = data.config || {};
+  document.getElementById('cfg-platform').value = c.platform || '';
+  document.getElementById('cfg-working').value = c.working_folder || '';
+  document.getElementById('cfg-token').value = c.token_file || '';
+  document.getElementById('cfg-aimodel').value = c.ai_model || '';
+  document.getElementById('cfg-user-templates').value = c.user_templates_dir || '';
+  _aiKey = c.ai_key || '';
+      _aiKeyRevealed = false;
+      document.getElementById('cfg-aikey').type = 'password';
+      document.getElementById('cfg-aikey').value = _aiKey ? '********' : '';
+      const icon = document.getElementById('cfg-aikey-icon');
+      if (icon) { icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye'); }
+    })
+    .catch(err => showMsg('Error: ' + err, 'error'));
+}
+
+function toggleAiKey() {
+  const input = document.getElementById('cfg-aikey');
+  const icon = document.getElementById('cfg-aikey-icon');
+  _aiKeyRevealed = !_aiKeyRevealed;
+  if (_aiKeyRevealed) {
+    input.type = 'text';
+    input.value = _aiKey;
+    if (icon) { icon.classList.remove('fa-eye'); icon.classList.add('fa-eye-slash'); }
+  } else {
+    input.type = 'password';
+    input.value = _aiKey ? '********' : '';
+    if (icon) { icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye'); }
+  }
+}
+
+function saveConfig() {
+  const platform = document.getElementById('cfg-platform').value.trim();
+  const working_folder = document.getElementById('cfg-working').value.trim();
+  const token_file = document.getElementById('cfg-token').value.trim();
+  const ai_model = document.getElementById('cfg-aimodel').value.trim();
+  const user_templates_dir = document.getElementById('cfg-user-templates').value.trim();
+
+  const errs = [];
+  if (platform && !(platform.startsWith('http://') || platform.startsWith('https://'))) {
+    errs.push('Platform must start with http:// or https://');
+  }
+  if (!working_folder) errs.push('Save folder is required');
+  if (!token_file) errs.push('Token file path is required');
+  if (errs.length) { showMsg(errs.join(' | '), 'error'); return; }
+
+  const payload = { platform, working_folder, token_file, ai_model };
+  if (user_templates_dir) payload.user_templates_dir = user_templates_dir;
+  // Only send ai_key if user revealed and provided a value different from mask or if no existing key
+  const input = document.getElementById('cfg-aikey');
+  const keyVal = input.value;
+  if (_aiKeyRevealed && keyVal) {
+    payload.ai_key = keyVal;
+  }
+
+  fetch('/config', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) { showMsg('Saved.', 'success'); }
+      else { showMsg(data.message || 'Save failed', 'error'); }
+    })
+    .catch(err => showMsg('Error: ' + err, 'error'));
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadConfig();
+  const btn = document.getElementById('cfg-aikey-toggle');
+  if (btn) btn.addEventListener('click', toggleAiKey);
+  initToolsUI();
+  initPromptsUI();
+});
+
+// Simple directory browser
+let _dirTarget = null;
+let _dirPath = '';
+
+function openDirBrowser(targetId) {
+  _dirTarget = targetId;
+  const input = document.getElementById(targetId);
+  _dirPath = (input && input.value) || '/';
+  document.getElementById('dirModal').style.display = 'block';
+  document.getElementById('dirModal').setAttribute('aria-hidden', 'false');
+  refreshDir();
+}
+
+function closeDirModal() {
+  document.getElementById('dirModal').style.display = 'none';
+  document.getElementById('dirModal').setAttribute('aria-hidden', 'true');
+}
+
+function dirUp() {
+  if (!_dirPath) return;
+  const idx = _dirPath.lastIndexOf('/');
+  if (idx > 0) {
+    _dirPath = _dirPath.substring(0, idx);
+  } else {
+    _dirPath = '/';
+  }
+  refreshDir();
+}
+
+function refreshDir() {
+  document.getElementById('dirCurrentPath').textContent = _dirPath;
+  fetch('/fs/list?path=' + encodeURIComponent(_dirPath))
+    .then(r => r.json())
+    .then(data => {
+      if (!data.success) { showMsg(data.message || 'Failed to list directory', 'error'); return; }
+      _dirPath = data.path || _dirPath;
+      document.getElementById('dirCurrentPath').textContent = _dirPath;
+      const list = document.getElementById('dirList');
+      list.innerHTML = '';
+      data.entries.forEach(ent => {
+        const div = document.createElement('div');
+        div.className = 'dir-item';
+        div.innerHTML = '<i class="fas fa-folder"></i> ' + ent.name;
+        div.onclick = () => { _dirPath = ent.path; refreshDir(); };
+        list.appendChild(div);
+      });
+    })
+    .catch(err => showMsg('Error: ' + err, 'error'));
+}
+
+function chooseCurrentDir() {
+  if (!_dirTarget) return;
+  const input = document.getElementById(_dirTarget);
+  if (input) input.value = _dirPath;
+  closeDirModal();
+}
+
+// Toolbin management (search + select + edit)
+let _toolNames = [];
+let _toolSelected = null;
+
+function initToolsUI() { loadToolNames(); }
+
+function loadToolNames() {
+  fetch('/get_tools')
+    .then(r => r.json())
+    .then(data => {
+      const sel = document.getElementById('tool-select');
+      sel.innerHTML = '';
+      _toolNames = (data.success && data.tools) ? data.tools.slice().sort((a,b)=>a.localeCompare(b)) : [];
+      if (!_toolNames.length) {
+        const opt = document.createElement('option');
+        opt.text = '(no tools)';
+        sel.appendChild(opt);
+        return;
+      }
+      _toolNames.forEach(n => { const opt = document.createElement('option'); opt.value = n; opt.text = n; sel.appendChild(opt); });
+      filterToolList();
+    })
+    .catch(() => {});
+}
+
+function filterToolList() {
+  const q = (document.getElementById('tool-search').value || '').toLowerCase();
+  const sel = document.getElementById('tool-select');
+  const options = Array.from(sel.options);
+  options.forEach(o => sel.removeChild(o));
+  _toolNames.filter(n => !q || n.toLowerCase().includes(q)).forEach(n => {
+    const opt = document.createElement('option');
+    opt.value = n; opt.text = n; sel.appendChild(opt);
+  });
+}
+
+function onSelectTool() { 
+  const sel = document.getElementById('tool-select');
+  const name = sel.value; _toolSelected = name || null; if (!name) return;
+  fetch('/get_tool', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name }) })
+    .then(r => r.json())
+    .then(data => {
+      const prev = document.getElementById('tool-preview');
+      const ed = document.getElementById('tool-editor');
+      ed.style.display = 'none';
+  prev.style.display = 'block';
+  // Render simple Markdown (bold, italics, code blocks) via marked.js if available
+  const raw = (data.success ? data.content : data.message) || '';
+  if (window.marked) { prev.innerHTML = window.marked.parse(raw); }
+  else { prev.textContent = raw; }
+  const editBtn = document.getElementById('tool-edit-btn');
+  if (editBtn) editBtn.style.display = '';
+    })
+    .catch(()=>{});
+}
+
+function editSelectedTool() {
+  if (!_toolSelected) return;
+  fetch('/get_tool', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name: _toolSelected }) })
+    .then(r=>r.json()).then(data=>{
+      if (!data.success) { showMsg(data.message||'Failed to load tool', 'error'); return; }
+      document.getElementById('tool-editor-text').value = data.content || '';
+      document.getElementById('tool-preview').style.display = 'none';
+      document.getElementById('tool-editor').style.display = 'block';
+  const editBtn = document.getElementById('tool-edit-btn');
+  if (editBtn) editBtn.style.display = 'none';
+    });
+}
+
+function cancelToolEdit() {
+  document.getElementById('tool-editor').style.display = 'none';
+  document.getElementById('tool-preview').style.display = _toolSelected ? 'block' : 'none';
+  const editBtn = document.getElementById('tool-edit-btn');
+  if (editBtn) editBtn.style.display = '';
+}
+
+function saveSelectedTool() {
+  if (!_toolSelected) return;
+  const content = document.getElementById('tool-editor-text').value;
+  fetch('/tools', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name: _toolSelected, content }) })
+    .then(r=>r.json()).then(data=>{ if (data.success) { onSelectTool(); showMsg('Tool saved', 'success'); } else { showMsg(data.message||'Failed to save', 'error'); } });
+  const editBtn = document.getElementById('tool-edit-btn');
+  if (editBtn) editBtn.style.display = '';
+}
+
+function renameSelectedTool() {
+  const name = _toolSelected; if (!name) return;
+  const new_name = prompt('New name for tool', name) || '';
+  if (!new_name.trim()) return;
+  fetch('/tools/rename', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ old_name: name, new_name }) })
+    .then(r=>r.json()).then(data=>{ if (data.success) { loadToolNames(); showMsg('Renamed', 'success'); } else showMsg(data.message||'Failed to rename', 'error'); });
+}
+
+function deleteSelectedTool() {
+  const name = _toolSelected; if (!name) return;
+  if (!confirm('Delete tool ' + name + '?')) return;
+  fetch('/tools/delete', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name }) })
+    .then(r=>r.json()).then(data=>{ if (data.success) { _toolSelected=null; document.getElementById('tool-preview').style.display='none'; loadToolNames(); showMsg('Deleted', 'success'); } else showMsg(data.message||'Failed to delete', 'error'); });
+}
+
+function saveNewTool() {
+  const name = document.getElementById('tool-new-name').value.trim();
+  const content = document.getElementById('tool-new-content').value.trim();
+  if (!name || !content) { showMsg('Tool name and content required', 'error'); return; }
+  fetch('/tools', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name, content }) })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        document.getElementById('tool-new-name').value = '';
+        document.getElementById('tool-new-content').value = '';
+        loadToolNames();
+        showMsg('Tool saved', 'success');
+      } else showMsg(data.message || 'Failed to save tool', 'error');
+    })
+    .catch(e => showMsg('Error: ' + e, 'error'));
+}
+
+// AI Prompts management
+let _promptList = [];
+let _promptSelected = null; // { name, section }
+
+function initPromptsUI() { loadPrompts(); }
+
+function currentPromptSection() {
+  return (document.getElementById('prompt-section').value || '').trim();
+}
+
+function loadPrompts() {
+  const section = currentPromptSection();
+  const url = '/ai/prompts' + (section ? ('?section=' + encodeURIComponent(section)) : '');
+  fetch(url)
+    .then(r=>r.json())
+    .then(data => {
+      const sel = document.getElementById('prompt-select');
+      sel.innerHTML = '';
+      _promptList = (data.success && data.prompts) ? data.prompts : [];
+      _promptList.sort((a,b)=> a.display.localeCompare(b.display));
+      filterPromptList();
+      document.getElementById('prompt-preview').style.display = 'none';
+      document.getElementById('prompt-editor').style.display = 'none';
+      _promptSelected = null;
+    })
+    .catch(()=>{});
+}
+
+function filterPromptList() {
+  const q = (document.getElementById('prompt-search').value || '').toLowerCase();
+  const sel = document.getElementById('prompt-select');
+  const options = Array.from(sel.options); options.forEach(o=>sel.removeChild(o));
+  _promptList.filter(p => !q || (p.display||p.name).toLowerCase().includes(q)).forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.name; opt.text = p.display || p.name; opt.dataset.name = p.name; sel.appendChild(opt);
+  });
+}
+
+function onSelectPrompt() {
+  const sel = document.getElementById('prompt-select');
+  const name = sel.value; if (!name) return;
+  const p = _promptList.find(x=>x.name===name);
+  _promptSelected = p ? { name: p.name, section: currentPromptSection() } : null;
+  if (!p) return;
+  const prev = document.getElementById('prompt-preview');
+  document.getElementById('prompt-editor').style.display = 'none';
+  prev.style.display = 'block';
+  prev.textContent = p.content || '';
+}
+
+function editSelectedPrompt() {
+  if (!_promptSelected) return;
+  const p = _promptList.find(x=>x.name===_promptSelected.name);
+  if (!p) return;
+  document.getElementById('prompt-editor-name').value = p.name;
+  document.getElementById('prompt-editor-text').value = p.content || '';
+  document.getElementById('prompt-preview').style.display = 'none';
+  document.getElementById('prompt-editor').style.display = 'block';
+}
+
+function cancelPromptEdit() {
+  document.getElementById('prompt-editor').style.display = 'none';
+  document.getElementById('prompt-preview').style.display = _promptSelected ? 'block' : 'none';
+}
+
+function savePromptEdit() {
+  const name = (document.getElementById('prompt-editor-name').value || '').trim();
+  const content = (document.getElementById('prompt-editor-text').value || '').trim();
+  const section = currentPromptSection();
+  if (!name || !content) { showMsg('Name and content required', 'error'); return; }
+  fetch('/ai/prompts', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name, content, section }) })
+    .then(r=>r.json()).then(data=>{ if (data.success) { loadPrompts(); showMsg('Prompt saved', 'success'); } else showMsg(data.message||'Failed to save prompt', 'error'); });
+}
+
+function saveNewPrompt() {
+  const name = (document.getElementById('prompt-new-name').value || '').trim();
+  const content = (document.getElementById('prompt-new-content').value || '').trim();
+  const section = currentPromptSection();
+  if (!name || !content) { showMsg('Name and content required', 'error'); return; }
+  fetch('/ai/prompts', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name, content, section }) })
+    .then(r=>r.json()).then(data=>{ if (data.success) { document.getElementById('prompt-new-name').value=''; document.getElementById('prompt-new-content').value=''; loadPrompts(); showMsg('Prompt added', 'success'); } else showMsg(data.message||'Failed to add prompt', 'error'); });
+}
+
+function renameSelectedPrompt() {
+  if (!_promptSelected) return;
+  const new_name = prompt('New file name (e.g., rewrite-style.txt)', _promptSelected.name) || '';
+  if (!new_name.trim()) return;
+  const section = currentPromptSection();
+  fetch('/ai/prompts/rename', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ old_name: _promptSelected.name, new_name, section }) })
+    .then(r=>r.json()).then(data=>{ if (data.success) { loadPrompts(); showMsg('Renamed', 'success'); } else showMsg(data.message||'Failed to rename', 'error'); });
+}
+
+function deleteSelectedPrompt() {
+  if (!_promptSelected) return;
+  if (!confirm('Delete prompt ' + _promptSelected.name + '?')) return;
+  const section = currentPromptSection();
+  fetch('/ai/prompts/delete', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name: _promptSelected.name, section }) })
+    .then(r=>r.json()).then(data=>{ if (data.success) { loadPrompts(); showMsg('Deleted', 'success'); } else showMsg(data.message||'Failed to delete', 'error'); });
+}
+
+function onSelectPromptEdit() { /* reserved */ }
+
+function openPromptFolder() {
+  const section = currentPromptSection();
+  fetch('/ai/prompts/open', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ section }) })
+    .then(r=>r.json()).then(data=>{ if (!data.success) showMsg(data.message||'Failed to open folder', 'error'); });
+}
+
+function escapeHtml(str) {
+  return (str || '').replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[s]));
+}
+</script>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/marked.min.js') }}"></script>
+{% endblock %}

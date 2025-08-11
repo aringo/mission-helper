@@ -1,0 +1,434 @@
+[Burp Suite Professional]
+- **[Burp Suite Professional](https://portswigger.net/burp/releases#professional)**  
+  *Function*: Web proxy and vulnerability testing platform for intercepting/modifying traffic, scanning, and fuzzing.  
+  *Reason*: Core toolkit for manual and semi‑automated web testing, reproductions, and PoCs.  
+  *Usage Example*:
+  - Intercept and replay requests with Repeater, automate payloads with Intruder, and configure custom scan profiles.
+
+[OWASP ZAP]
+- **[OWASP ZAP](https://www.zaproxy.org/)**  
+  *Function*: Open‑source web application scanner and intercepting proxy.  
+  *Reason*: Free alternative for scanning, spidering, and passive/active analysis.  
+  *Usage Example*:
+  ```bash
+  zap-baseline.py -t https://example.com -r zap_report.html
+  ```
+
+[ffuf]
+- **[ffuf](https://github.com/ffuf/ffuf)**  
+  *Function*: Fast web fuzzer for content discovery and parameter bruteforcing.  
+  *Reason*: Quickly finds hidden directories/files and error conditions.  
+  *Usage Example*:
+  ```bash
+  ffuf -w SecLists/Discovery/Web-Content/common.txt -u https://example.com/FUZZ -mc 200,204,301,302 -fc 404
+  ```
+
+[Browser DevTools]
+- **Browser DevTools**  
+  *Function*: Built‑in browser tooling for inspecting network requests, DOM, storage, performance, and JavaScript.  
+  *Reason*: Validates front‑end behavior, client‑side security controls, and error handling.
+
+[go-dork]
+- **[go-dork](https://github.com/dwisiswant0/go-dork)**  
+  *Function*: Generates and runs Google dorks to uncover hidden/unlinked pages.  
+  *Reason*: Surfaces exposed content outside normal navigation flows.  
+  *Usage Example*:
+  ```bash
+  go-dork -q 'site:example.com inurl:admin' -o dorks.txt
+  ```
+
+[GetAllUrls (GAU)]
+- **[GAU](https://github.com/lc/gau)**  
+  *Function*: Retrieves historical URLs from sources like Wayback Machine, Common Crawl.  
+  *Reason*: Reveals deprecated/forgotten endpoints for testing.  
+  *Usage Example*:
+  ```bash
+  echo example.com | gau --o urls.txt
+  ```
+
+[Katana]
+- **[Katana](https://github.com/projectdiscovery/katana)**  
+  *Function*: High‑speed crawler that extracts endpoints, parameters, and JS references.  
+  *Reason*: Builds deeper endpoint inventories from modern apps.  
+  *Usage Example*:
+  ```bash
+  katana -jc -jsl -rl 10 --depth 10 -fs fqdn -list targets.txt -proxy http://127.0.0.1:8080 | tee -a katana.txt
+  ```
+
+[uro]
+- **[uro](https://github.com/s0md3v/uro)**  
+  *Function*: De‑duplicates and normalizes URLs.  
+  *Reason*: Reduces noise to speed scanning and testing.  
+  *Usage Example*:
+  ```bash
+  cat urls.txt | uro > urls_unique.txt
+  ```
+
+[Nuclei]
+- **[Nuclei](https://github.com/projectdiscovery/nuclei)**  
+  *Function*: Template‑driven scanner for tech detection, misconfigurations, and vulnerabilities.  
+  *Reason*: Standardizes repeatable checks and enables custom templates.  
+  *Usage Example*:
+  ```bash
+  nuclei -l urls_unique.txt -severity medium,high,critical -o nuclei_findings.txt
+  ```
+
+[identYwaf]
+- **[identYwaf](https://github.com/stamparm/identYwaf)**  
+  *Function*: Probes targets with crafted payloads to infer WAF behavior.  
+  *Reason*: Identifies protective layers even without explicit banners.  
+  *Usage Example*:
+  ```bash
+  python3 identYwaf.py https://example.com
+  ```
+
+[WAFW00F]
+- **[wafw00f](https://github.com/EnableSecurity/wafw00f)**  
+  *Function*: WAF fingerprinting via HTTP response analysis.  
+  *Reason*: Helps tune payloads and expectations when protections are present.  
+  *Usage Example*:
+  ```bash
+  wafw00f https://example.com -a
+  ```
+
+[Subfinder]
+- **[Subfinder](https://github.com/projectdiscovery/subfinder)**  
+  *Function*: Passive subdomain enumeration using OSINT sources.  
+  *Reason*: Fast and reliable starting point for asset discovery.  
+  *Usage Example*:
+  ```bash
+  subfinder -d example.com -silent -o subs.txt
+  ```
+
+[Amass]
+- **[Amass](https://github.com/owasp-amass/amass)**  
+  *Function*: In‑depth attack surface mapping and subdomain enumeration.  
+  *Reason*: Comprehensive discovery across multiple data sources and techniques.  
+  *Usage Example*:
+  ```bash
+  amass enum -d example.com -o amass_subs.txt
+  ```
+
+[assetfinder]
+- **[assetfinder](https://github.com/tomnomnom/assetfinder)**  
+  *Function*: Finds subdomains related to a given domain.  
+  *Reason*: Quick, simple enumeration to seed larger workflows.  
+  *Usage Example*:
+  ```bash
+  assetfinder --subs-only example.com | tee asset_subs.txt
+  ```
+
+[dnsx]
+- **[dnsx](https://github.com/projectdiscovery/dnsx)**  
+  *Function*: Fast DNS resolver and probe toolkit.  
+  *Reason*: Validates live subdomains and collects records at scale.  
+  *Usage Example*:
+  ```bash
+  dnsx -l subs.txt -a -resp-only -o alive_hosts.txt
+  ```
+
+[naabu]
+- **[naabu](https://github.com/projectdiscovery/naabu)**  
+  *Function*: Fast port scanner focused on speed and accuracy.  
+  *Reason*: Finds open ports to feed HTTP/HTTPS and service checks.  
+  *Usage Example*:
+  ```bash
+  naabu -list alive_hosts.txt -o open_ports.txt
+  ```
+
+[httpx]
+- **[httpx](https://github.com/projectdiscovery/httpx)**  
+  *Function*: HTTP toolkit for probing web servers (status, title, tech, TLS, etc.).  
+  *Reason*: Enriches targets and filters for interesting hosts.  
+  *Usage Example*:
+  ```bash
+  httpx -l alive_hosts.txt -status-code -title -tech-detect -o httpx_report.txt
+  ```
+
+[waybackurls]
+- **[waybackurls](https://github.com/tomnomnom/waybackurls)**  
+  *Function*: Fetches URLs from the Wayback Machine for a domain.  
+  *Reason*: Recovers legacy endpoints and parameters.  
+  *Usage Example*:
+  ```bash
+  echo example.com | waybackurls > wayback.txt
+  ```
+
+[hakrawler]
+- **[hakrawler](https://github.com/hakluke/hakrawler)**  
+  *Function*: Fast web crawler that extracts links and endpoints.  
+  *Reason*: Lightweight alternative for quick recon.  
+  *Usage Example*:
+  ```bash
+  echo https://example.com | hakrawler -depth 2 -plain > crawl.txt
+  ```
+
+[LinkFinder]
+- **[LinkFinder](https://github.com/GerbenJavado/LinkFinder)**  
+  *Function*: Discovers endpoints/URLs in JavaScript files via regex parsing.  
+  *Reason*: Surfaces hidden API paths and parameters.  
+  *Usage Example*:
+  ```bash
+  python3 linkfinder.py -i https://example.com/app.js -o cli
+  ```
+
+[ParamSpider]
+- **[ParamSpider](https://github.com/devanshbatham/ParamSpider)**  
+  *Function*: Crawls for GET parameters on a domain.  
+  *Reason*: Builds parameter wordlists for XSS/IDOR testing.  
+  *Usage Example*:
+  ```bash
+  paramspider -d example.com -o params.txt
+  ```
+
+[Arjun]
+- **[Arjun](https://github.com/s0md3v/Arjun)**  
+  *Function*: Finds hidden HTTP parameters by analyzing responses.  
+  *Reason*: Automates parameter discovery beyond common lists.  
+  *Usage Example*:
+  ```bash
+  arjun -u https://example.com/page -m GET -oT arjun_params.txt
+  ```
+
+[dalfox]
+- **[dalfox](https://github.com/hahwul/dalfox)**  
+  *Function*: XSS scanner with smart parameter analysis.  
+  *Reason*: High‑signal detection for reflected/stored XSS.  
+  *Usage Example*:
+  ```bash
+  dalfox file urls_unique.txt -o dalfox_xss.txt
+  ```
+
+[Kiterunner]
+- **[Kiterunner](https://github.com/assetnote/kiterunner)**  
+  *Function*: API route enumeration using wordlists and OpenAPI patterns.  
+  *Reason*: Targets modern API surfaces beyond web routes.  
+  *Usage Example*:
+  ```bash
+  kr scan https://api.example.com -w routes-large.kite -A
+  ```
+
+[dirsearch]
+- **[dirsearch](https://github.com/maurosoria/dirsearch)**  
+  *Function*: Directory/file brute‑forcer for web servers.  
+  *Reason*: Finds hidden resources and misconfigurations.  
+  *Usage Example*:
+  ```bash
+  dirsearch -u https://example.com -e php,asp,aspx,js -x 403,404
+  ```
+
+[gobuster]
+- **[gobuster](https://github.com/OJ/gobuster)**  
+  *Function*: Directory/DNS/VHost brute‑forcer.  
+  *Reason*: Alternative engine with useful modes beyond content discovery.  
+  *Usage Example*:
+  ```bash
+  gobuster dir -u https://example.com -w SecLists/Discovery/Web-Content/common.txt
+  ```
+
+[feroxbuster]
+- **[feroxbuster](https://github.com/epi052/feroxbuster)**  
+  *Function*: Fast recursive content discovery.  
+  *Reason*: Excellent for uncovering deep nested paths.  
+  *Usage Example*:
+  ```bash
+  feroxbuster -u https://example.com -x php,html -o ferox_results.txt
+  ```
+
+[sqlmap]
+- **[sqlmap](https://github.com/sqlmapproject/sqlmap)**  
+  *Function*: Automated SQL injection detection and exploitation.  
+  *Reason*: Gold standard for verifying injection findings.  
+  *Usage Example*:
+  ```bash
+  sqlmap -u 'https://example.com/item?id=1' --batch --risk=2 --level=2
+  ```
+
+[XSStrike]
+- **[XSStrike](https://github.com/s0md3v/XSStrike)**  
+  *Function*: Advanced XSS detection and exploitation suite.  
+  *Reason*: Complements manual testing for complex XSS vectors.  
+  *Usage Example*:
+  ```bash
+  xsstrike -u 'https://example.com?q=test' -t 5
+  ```
+
+[WhatWeb]
+- **[WhatWeb](https://github.com/urbanadventurer/WhatWeb)**  
+  *Function*: Web technology fingerprinting.  
+  *Reason*: Quickly profiles targets to guide testing strategy.  
+  *Usage Example*:
+  ```bash
+  whatweb -v https://example.com
+  ```
+
+[webanalyze]
+- **[webanalyze](https://github.com/rverton/webanalyze)**  
+  *Function*: Technology detection using Wappalyzer signatures.  
+  *Reason*: Fast CLI for stack identification.  
+  *Usage Example*:
+  ```bash
+  webanalyze -host https://example.com -crawl 1 -output tsv
+  ```
+
+[Nmap]
+- **[Nmap](https://nmap.org/)**  
+  *Function*: Network scanner for host discovery and service enumeration.  
+  *Reason*: Maps exposed services to plan deeper testing.  
+  *Usage Example*:
+  ```bash
+  nmap -sV -p- example.com -oN nmap.txt
+  ```
+
+[EyeWitness]
+- **[EyeWitness](https://github.com/FortyNorthSecurity/EyeWitness)**  
+  *Function*: Screenshots and reports for web interfaces.  
+  *Reason*: Rapid triage/visual review of large host lists.  
+  *Usage Example*:
+  ```bash
+  eyewitness -f httpx_report.txt --web --timeout 10 -d eyewitness_report
+  ```
+
+[Aquatone]
+- **[Aquatone](https://github.com/michenriksen/aquatone)**  
+  *Function*: Visual inspection of websites across hosts.  
+  *Reason*: Useful alternative for site previewing and reporting.  
+  *Usage Example*:
+  ```bash
+  cat alive_hosts.txt | aquatone -out aquatone_report
+  ```
+
+[Gitleaks]
+- **[Gitleaks](https://github.com/gitleaks/gitleaks)**  
+  *Function*: Detects hardcoded secrets in repos and commits.  
+  *Reason*: Finds credential exposure in public/private code.  
+  *Usage Example*:
+  ```bash
+  gitleaks detect -s . -v
+  ```
+
+[TruffleHog]
+- **[TruffleHog](https://github.com/trufflesecurity/trufflehog)**  
+  *Function*: High‑signal secret scanning across VCS and endpoints.  
+  *Reason*: Complements Gitleaks with different detectors.  
+  *Usage Example*:
+  ```bash
+  trufflehog github --repo https://github.com/org/repo
+  ```
+
+[GitTools]
+- **[GitTools](https://github.com/internetwache/GitTools)**  
+  *Function*: Dumps and extracts data from exposed .git directories.  
+  *Reason*: Recovers source history leaked on web servers.  
+  *Usage Example*:
+  ```bash
+  gitdumper.sh https://example.com/.git/ /tmp/dumped_repo
+  ```
+
+[Subjack]
+- **[Subjack](https://github.com/haccer/subjack)**  
+  *Function*: Subdomain takeover detection.  
+  *Reason*: Flags dangling DNS/hosting configurations.  
+  *Usage Example*:
+  ```bash
+  subjack -w subs.txt -t 100 -timeout 30 -ssl -c fingerprints.json -o takeover.txt
+  ```
+
+[S3Scanner]
+- **[S3Scanner](https://github.com/sa7mon/S3Scanner)**  
+  *Function*: Finds open or misconfigured S3 buckets.  
+  *Reason*: Identifies data exposure in cloud storage.  
+  *Usage Example*:
+  ```bash
+  s3scanner --include-aws --include-minio --include-digitalocean -b buckets.txt
+  ```
+
+[cloud_enum]
+- **[cloud_enum](https://github.com/initstring/cloud_enum)**  
+  *Function*: Enumerates cloud infrastructure (AWS/Azure/GCP) artifacts.  
+  *Reason*: Surfaces publicly accessible cloud assets.  
+  *Usage Example*:
+  ```bash
+  cloud_enum -k examplecompany
+  ```
+
+[httprobe]
+- **[httprobe](https://github.com/tomnomnom/httprobe)**  
+  *Function*: Probes domains for alive HTTP(S) services.  
+  *Reason*: Filters large target lists to active hosts.  
+  *Usage Example*:
+  ```bash
+  cat subs.txt | httprobe -c 50 -t 3000 > alive.txt
+  ```
+
+[gf]
+- **[gf](https://github.com/tomnomnom/gf)**  
+  *Function*: Grep patterns for common vuln‑prone parameters and paths.  
+  *Reason*: Quickly classifies URLs for targeted testing.  
+  *Usage Example*:
+  ```bash
+  cat urls_unique.txt | gf xss | tee xss_candidates.txt
+  ```
+
+[qsreplace]
+- **[qsreplace](https://github.com/tomnomnom/qsreplace)**  
+  *Function*: Replaces query string values for mass testing.  
+  *Reason*: Simplifies payload injection across URL lists.  
+  *Usage Example*:
+  ```bash
+  cat urls_unique.txt | qsreplace '\"\>\<svg/onload=alert(1)\>' > injected_urls.txt
+  ```
+
+[anew]
+- **[anew](https://github.com/tomnomnom/anew)**  
+  *Function*: Appends unique lines to a file.  
+  *Reason*: De‑duplicates streams in recon pipelines.  
+  *Usage Example*:
+  ```bash
+  cat new_urls.txt | anew all_urls.txt
+  ```
+
+[unfurl]
+- **[unfurl](https://github.com/tomnomnom/unfurl)**  
+  *Function*: Extracts components (domains, params, paths) from URLs.  
+  *Reason*: Builds targeted wordlists and filters.  
+  *Usage Example*:
+  ```bash
+  cat urls_unique.txt | unfurl -u paths | sort -u > paths.txt
+  ```
+
+[SecLists]
+- **[SecLists](https://github.com/danielmiessler/SecLists)**  
+  *Function*: Comprehensive wordlist collection for security testing.  
+  *Reason*: Essential dictionaries for fuzzing, bruteforcing, and discovery.  
+  *Usage Example*:
+  - Common list path (example): `SecLists/Discovery/Web-Content/common.txt`
+
+[tlsx]
+- **[tlsx](https://github.com/projectdiscovery/tlsx)**  
+  *Function*: TLS toolkit to probe endpoints and extract certificate data (CN, SANs, issuer, validity), detect weak/expired/mismatched certs, and pivot from certificates to related domains.  
+  *Reason*: Expands recon and triage by surfacing alternate hostnames and certificate anomalies; useful input for asset discovery and prioritization.  
+  *Usage Example*:
+  ```bash
+  # Probe a list of domains and output JSON
+  tlsx -l domains.txt -san -cn -issuer -resp-only -o tlsx.txt
+
+  # Single target quick check
+  tlsx -u example.com -san -cn -issuer
+  ```
+
+[WPScan]
+- **[WPScan](https://github.com/wpscanteam/wpscan)**  
+  *Function*: WordPress security scanner for version/plugin/theme enumeration and vulnerability checks (optionally using the WPScan vuln DB token).  
+  *Reason*: Fast validation of common WordPress misconfigurations, outdated components, and known CVEs on WP targets.  
+  *Usage Example*:
+  ```bash
+  # Basic scan with enumeration
+  wpscan --url https://example.com \
+         --enumerate u,vt,tt,cb \
+         --random-user-agent
+
+  # With API token for vulnerability DB lookups
+  export WPSCAN_API_TOKEN=YOUR_TOKEN
+  wpscan --url https://example.com --api-token $WPSCAN_API_TOKEN --enumerate vp,vt
+  ```
